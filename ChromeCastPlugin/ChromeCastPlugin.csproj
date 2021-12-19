@@ -132,6 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Installer\LoupedeckPackage.yaml" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -139,4 +140,20 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>ECHO "Set archive"
+SET archive=$(SolutionDir)bin\$(ConfigurationName)\Installer\ChromecastPlugin.lplug4
+ECHO "%25archive%25"
+
+ECHO "Delete archive"
+DEL %25archive%25
+
+ECHO "ZIP archive"
+7z a -tzip %25archive%25 $(ProjectDir)\Installer\LoupedeckPackage.yaml
+7z a -tzip %25archive%25 "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
