@@ -8,22 +8,21 @@
 
     internal class ChromeCastSelectorCommandFolder : PluginDynamicFolder
     {
-
-        private IChromeCastWrapper ChromeCastWrapper => (this.Plugin as ChromeCastPlugin).ChromeCastApi;
-
-        private Boolean _isLoaded = false;
-        private readonly String _loadingCommand = "loading...";
-        private readonly String _notFoundCommand = "chromecast not found";
-
         public ChromeCastSelectorCommandFolder()
         {
-            this.DisplayName = "Select ChromeCast";
+            this.DisplayName = "Select Chromecast";
             this.GroupName = "Chromecast";
             this.Navigation = PluginDynamicFolderNavigation.ButtonArea;
         }
 
-        //public override LibraryImage GetButtonLibraryImage() => new LibraryImage("Devices.png");
+        private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
+        private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
 
+        private Boolean _isLoaded = false;
+        private readonly String _loadingCommand = "Loading...";
+        private readonly String _notFoundCommand = "Chromecast not found";
+
+        #region PluginDynamicFolder overrides
         public override Boolean Activate()
         {
             this.LoadChromeCastRecievers();
@@ -48,22 +47,10 @@
                 .Select(chromeCast => this.CreateCommandName(chromeCast.Id));
         }
 
-        private async void LoadChromeCastRecievers()
-        {
-            try
-            {
-                await this.ChromeCastWrapper.SearchChromeCasts();
-                this._isLoaded = true;
-
-                this.ButtonActionNamesChanged();
-            }
-            catch (Exception e)
-            {
-                Tracer.Trace($"ChromeCastPlugin: ", e);
-            }
-        }
-
-        public override String GetCommandDisplayName(String commandParameter, PluginImageSize imageSize) => this.GetChromeCastDisplayName(commandParameter);
+        public override String GetButtonDisplayName(PluginImageSize imageSize) =>
+            this.ChromeCastWrapper.ConnectedChromeCast != null
+            ? this.ChromeCastWrapper.ConnectedChromeCast.Name + " selected"
+            : base.GetButtonDisplayName(imageSize);
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
@@ -75,7 +62,7 @@
 
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
             {
-                if(this.ChromeCastWrapper.ConnectedChromeCast?.Id == actionParameter)
+                if (this.ChromeCastWrapper.ConnectedChromeCast?.Id == actionParameter)
                 {
                     bitmapBuilder.SetBackgroundImage(EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.selected_receiver.png"));
                     bitmapBuilder.DrawText(this.GetChromeCastDisplayName(actionParameter), BitmapColor.Black);
@@ -88,23 +75,6 @@
                     return bitmapBuilder.ToImage();
                 }
             }
-        }
-
-        private String GetChromeCastDisplayName(String commandParameter)
-        {
-            if (commandParameter == this._loadingCommand)
-            {
-                return this._loadingCommand;
-            }
-
-            var receiverDisplayName = this.ChromeCastWrapper.ChromeCasts.FirstOrDefault(cc => cc.Id == commandParameter)?.Name;
-            //if (deviceDisplayName != null && !deviceDisplayName.Contains(" ") && deviceDisplayName.Length > 9)
-            //{
-            //    var updatedDisplayName = deviceDisplayName.Insert(9, "\n");
-            //    return updatedDisplayName.Length > 18 ? updatedDisplayName.Insert(18, "\n") : updatedDisplayName;
-            //}
-
-            return receiverDisplayName;
         }
 
         public override void RunCommand(String commandParameter)
@@ -129,8 +99,43 @@
             }
             catch (Exception e)
             {
-                Tracer.Trace($"ChromeCastPlugin: ", e);
+                this.ChromeCastPlugin.HandleError("Select chromecast failed", e);
             }
         }
+        #endregion
+
+        #region Private functions
+        private async void LoadChromeCastRecievers()
+        {
+            try
+            {
+                await this.ChromeCastWrapper.SearchChromeCasts();
+                this._isLoaded = true;
+
+                this.ButtonActionNamesChanged();
+            }
+            catch (Exception e)
+            {
+                this.ChromeCastPlugin.HandleError("Loading chromecasts failed", e);
+            }
+        }
+
+        private String GetChromeCastDisplayName(String commandParameter)
+        {
+            if (commandParameter == this._loadingCommand)
+            {
+                return this._loadingCommand;
+            }
+
+            var receiverDisplayName = this.ChromeCastWrapper.ChromeCasts.FirstOrDefault(cc => cc.Id == commandParameter)?.Name;
+            //if (deviceDisplayName != null && !deviceDisplayName.Contains(" ") && deviceDisplayName.Length > 9)
+            //{
+            //    var updatedDisplayName = deviceDisplayName.Insert(9, "\n");
+            //    return updatedDisplayName.Length > 18 ? updatedDisplayName.Insert(18, "\n") : updatedDisplayName;
+            //}
+
+            return receiverDisplayName;
+        }
+        #endregion
     }
 }

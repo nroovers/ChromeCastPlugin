@@ -6,7 +6,6 @@
 
     internal class VolumeAdjustment : PluginDynamicAdjustment
     {
-
         public VolumeAdjustment() : base(
             "CCast volume",
             "Adjust chromecast volume level",
@@ -15,7 +14,10 @@
         {
         }
 
-        private IChromeCastWrapper ChromeCastWrapper => (this.Plugin as ChromeCastPlugin).ChromeCastApi;
+        private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
+        private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
+
+        #region PluginDynamicAdjustment overrides
 
         protected override Boolean OnLoad()
         {
@@ -46,9 +48,15 @@
                 return;
             }
 
-            this.ChromeCastWrapper.Volume += ticks; // increase or decrease counter on the number of ticks
-
-            this.ActionImageChanged(actionParameter);
+            try
+            {
+                this.ChromeCastWrapper.Volume += ticks; // increase or decrease counter on the number of ticks
+                this.ActionImageChanged(actionParameter);
+            }
+            catch (Exception e)
+            {
+                this.ChromeCastPlugin.HandleError("Adjusting volume failed", e);
+            }
         }
 
         protected override void RunCommand(String actionParameter)
@@ -58,8 +66,15 @@
                 return;
             }
 
-            this.ChromeCastWrapper.IsMuted = !this.ChromeCastWrapper.IsMuted;
-            this.ActionImageChanged(actionParameter);
+            try
+            {
+                this.ChromeCastWrapper.IsMuted = !this.ChromeCastWrapper.IsMuted;
+                this.ActionImageChanged(actionParameter);
+            }
+            catch (Exception e)
+            {
+                this.ChromeCastPlugin.HandleError("Muting volume failed", e);
+            }
         }
 
         protected override String GetAdjustmentValue(String actionParameter)
@@ -77,9 +92,14 @@
 
             return this.ChromeCastWrapper.Volume.ToString();
         }
+        #endregion
+
+        #region Private functions
 
         private void ChromeCastApi_onChromeCastConnected(Object sender, ChromeCastWrapper.ChromeCastEventArgs e) => this.ActionImageChanged();
 
         private void ChromeCastApi_onStatusChanged(Object sender, ChromeCastWrapper.ChromeCastStatusEventArgs e) => this.ActionImageChanged();
+
+        #endregion
     }
 }

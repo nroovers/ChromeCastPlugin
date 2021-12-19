@@ -1,6 +1,7 @@
 namespace Loupedeck.ChromeCastPlugin
 {
     using System;
+
     using Loupedeck.ChromeCastPlugin.ChromeCastWrapper;
 
     public class ChromeCastPlugin : Plugin
@@ -35,6 +36,11 @@ namespace Loupedeck.ChromeCastPlugin
         {
         }
 
+        internal void HandleError(String msg, Exception e)
+        {
+            Tracer.Trace($"ChromeCastPlugin: {msg}\n{e.Message}\n{e.InnerException}");
+        }
+
         private void OnApplicationStarted(Object sender, EventArgs e)
         {
         }
@@ -42,5 +48,7 @@ namespace Loupedeck.ChromeCastPlugin
         private void OnApplicationStopped(Object sender, EventArgs e)
         {
         }
+
+
     }
 }
