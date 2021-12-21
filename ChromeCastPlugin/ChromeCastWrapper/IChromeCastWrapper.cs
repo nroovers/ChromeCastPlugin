@@ -23,6 +23,8 @@
 
         PlayBackState PlayBackState { get; }
 
+        String PlayBackUrl { get; }
+
         IEnumerable<ChromeCast> ChromeCasts { get; }
 
         ChromeCast ConnectedChromeCast { get; }

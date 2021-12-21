@@ -25,8 +25,6 @@
         //    "\n" +
         //    base.GetCommandDisplayName(actionParameter, imageSize);
 
-        protected override PluginProfileActionData GetProfileActionData() => base.GetProfileActionData();
-
         protected override void RunCommand(String actionParameter)
         {
             if (this.ChromeCastWrapper == null)
@@ -36,7 +34,8 @@
 
             try
             {
-                if (this.ChromeCastWrapper.PlayBackState != PlayBackState.Playing)
+                if (this.ChromeCastWrapper.PlayBackUrl != actionParameter ||
+                    this.ChromeCastWrapper.PlayBackState != PlayBackState.Playing)
                 {
                     this.ChromeCastWrapper.PlayCast(actionParameter);
                 }
