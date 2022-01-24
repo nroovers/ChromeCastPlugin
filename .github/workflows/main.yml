@@ -38,4 +38,4 @@ jobs:
         run: nuget restore ChromeCastPlugin.sln
 
       - name: Build Solution
-        run: msbuild.exe ChromeCastPlugin.sln /p:platform="Any CPU" /p:configuration="Release"
+        run: msbuild.exe ChromeCastPlugin.sln /p:platform="Any CPU" /p:configuration="Release" /p:OutputPath="bin\Release"
