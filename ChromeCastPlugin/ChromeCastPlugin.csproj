@@ -138,7 +138,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Icons\*.*" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Resources\Icons\loupedeck_icon_300x300.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
