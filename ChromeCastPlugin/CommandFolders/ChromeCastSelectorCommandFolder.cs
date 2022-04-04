@@ -86,16 +86,20 @@
 
             try
             {
-                var previousReceiverCommandName = this.ChromeCastWrapper.ConnectedChromeCast?.Id;
+                var previousChromeCastCommandParameter = this.ChromeCastWrapper.ConnectedChromeCast?.Id;
 
-                this.ChromeCastWrapper.Connect(this.ChromeCastWrapper.ChromeCasts.FirstOrDefault(x => x.Id == commandParameter));
+                var selectedChromeCast = this.ChromeCastWrapper.ChromeCasts.FirstOrDefault(x => x.Id == commandParameter);
 
-                if (!String.IsNullOrEmpty(previousReceiverCommandName))
+                if (selectedChromeCast != null)
                 {
-                    this.CommandImageChanged(previousReceiverCommandName);
+                    this.ChromeCastWrapper.Connect(selectedChromeCast);
+                    this.CommandImageChanged(commandParameter);
                 }
 
-                this.CommandImageChanged(commandParameter);
+                if (!String.IsNullOrEmpty(previousChromeCastCommandParameter))
+                {
+                    this.CommandImageChanged(previousChromeCastCommandParameter);
+                }
             }
             catch (Exception e)
             {

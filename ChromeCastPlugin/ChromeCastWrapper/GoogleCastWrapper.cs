@@ -84,6 +84,44 @@
         #endregion
 
         #region IChromeCastWrapper functions
+
+        public async Task<Boolean> ReConnect()
+        {
+            try
+            {
+                if (this._selectedReceiver == null)
+                {
+                    return true;
+                }
+
+                if (this._receivers?.Count() == 0)
+                {
+                    await this.SearchChromeCasts();
+                }
+
+                if (this._receivers.FirstOrDefault(r => r.Id == this._selectedReceiver.Id) == null)
+                {
+                    this._selectedReceiver = null;
+                    return true;
+                }
+
+                await this._sender.ConnectAsync(this._selectedReceiver);
+
+                var status = await this._sender.GetChannel<IReceiverChannel>().GetStatusAsync();
+
+                this.SetReceiverStatus(status);
+
+                this.ConnectEventHandlers();
+
+                this.ChromeCastConnected?.Invoke(this, new ChromeCastEventArgs() { ChromeCast = ConnectedChromeCast });
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public async Task<Boolean> Connect(ChromeCast chromeCast)
         {
             if (chromeCast == null)
@@ -95,7 +133,7 @@
             {
                 var receiver = this._receivers.FirstOrDefault(r => r.Id == chromeCast.Id);
 
-                if (receiver != null && 
+                if (receiver != null &&
                     this._selectedReceiver?.Id != receiver.Id)
                 {
                     this._selectedReceiver = receiver;
@@ -106,11 +144,7 @@
 
                     this.SetReceiverStatus(status);
 
-                    if (this._sender.GetChannel<IReceiverChannel>() != null)
-                    {
-                        this._sender.GetChannel<IReceiverChannel>().StatusChanged += this.GoogleCastWrapper_ReceiverStatusChanged;
-                        this._sender.GetChannel<IMediaChannel>().StatusChanged += this.GoogleCastWrapper_MediaStatusChanged;
-                    }
+                    this.ConnectEventHandlers();
 
                     this.ChromeCastConnected?.Invoke(this, new ChromeCastEventArgs() { ChromeCast = chromeCast });
                 }
@@ -119,7 +153,6 @@
             {
                 return false;
             }
-
             return true;
         }
 
@@ -131,15 +164,9 @@
 
             if (this._sender != null)
             {
-                if (this._sender.GetChannel<IReceiverChannel>() != null)
-                {
-                    this._sender.GetChannel<IReceiverChannel>().StatusChanged -= this.GoogleCastWrapper_ReceiverStatusChanged;
-                    this._sender.GetChannel<IMediaChannel>().StatusChanged -= this.GoogleCastWrapper_MediaStatusChanged;
-                }
-
+                this.DisconnectEventHandlers();
                 this._sender.Disconnect();
             }
-
             return true;
         }
 
@@ -187,7 +214,15 @@
 
             if (this.PlayBackUrl != url)
             {
-                await mediaChannel.LoadAsync(new MediaInformation() { ContentId = url });
+                await mediaChannel.LoadAsync(new MediaInformation()
+                {
+                    ContentId = url,
+                    Metadata = new GenericMediaMetadata()
+                    {
+                        Title = "Loupedeck Chromecast Plugin",
+                        Subtitle = url,
+                    }
+                });
                 this.PlayBackUrl = url;
             }
             else if (this.PlayBackState != PlayBackState.Playing)
@@ -253,16 +288,8 @@
 
             this._isMuted = status.Volume.IsMuted ?? false;
             this._volume = (Int32)(status.Volume.Level * 100);
-            //this._application = status.Applications?.FirstOrDefault();
 
             this.StatusChanged?.Invoke(this, new ChromeCastStatusEventArgs() { Volume = this._volume, IsMuted = this._isMuted });
-
-            //else
-            //{
-            //    this._isMuted = false;
-            //    this._volume = 50;
-            //    this._application = null;
-            //}
         }
 
         private void SetMediaStatus(MediaStatus status)
@@ -295,6 +322,24 @@
                 Name = receiver.FriendlyName,
                 Ip = receiver.IPEndPoint.ToString(),
             };
+        }
+
+        private void ConnectEventHandlers()
+        {
+            if (this._sender.GetChannel<IReceiverChannel>() != null)
+            {
+                this._sender.GetChannel<IReceiverChannel>().StatusChanged += this.GoogleCastWrapper_ReceiverStatusChanged;
+                this._sender.GetChannel<IMediaChannel>().StatusChanged += this.GoogleCastWrapper_MediaStatusChanged;
+            }
+        }
+
+        private void DisconnectEventHandlers()
+        {
+            if (this._sender.GetChannel<IReceiverChannel>() != null)
+            {
+                this._sender.GetChannel<IReceiverChannel>().StatusChanged -= this.GoogleCastWrapper_ReceiverStatusChanged;
+                this._sender.GetChannel<IMediaChannel>().StatusChanged -= this.GoogleCastWrapper_MediaStatusChanged;
+            }
         }
         #endregion
     }

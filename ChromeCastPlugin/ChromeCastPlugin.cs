@@ -18,6 +18,8 @@ namespace Loupedeck.ChromeCastPlugin
             this.Info.Icon32x32 = EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.PluginIcon32x32.png");
             this.Info.Icon48x48 = EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.PluginIcon48x48.png");
             this.Info.Icon256x256 = EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.PluginIcon256x256.png");
+
+            this.ChromeCastApi.ReConnect();
         }
 
         public override void Unload()
@@ -48,7 +50,5 @@ namespace Loupedeck.ChromeCastPlugin
         private void OnApplicationStopped(Object sender, EventArgs e)
         {
         }
-
-
     }
 }

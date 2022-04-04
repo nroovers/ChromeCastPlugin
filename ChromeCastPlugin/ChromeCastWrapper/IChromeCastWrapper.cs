@@ -31,6 +31,8 @@
 
         Task<Boolean> SearchChromeCasts();
 
+        Task<Boolean> ReConnect();
+
         Task<Boolean> Connect(ChromeCast chromeCast);
 
         Boolean Disconnect();
