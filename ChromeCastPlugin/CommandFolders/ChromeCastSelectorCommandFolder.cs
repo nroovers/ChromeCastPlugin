@@ -54,26 +54,24 @@
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            if (actionParameter == this._loadingCommand ||
-                actionParameter == this._notFoundCommand)
-            {
-                return null;
-            }
-
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
             {
                 if (this.ChromeCastWrapper.ConnectedChromeCast?.Id == actionParameter)
                 {
-                    bitmapBuilder.SetBackgroundImage(EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.selected_receiver.png"));
+                    bitmapBuilder.FillRectangle(0, 0, 90, 90, BitmapColor.White);
                     bitmapBuilder.DrawText(this.GetChromeCastDisplayName(actionParameter), BitmapColor.Black);
                     return bitmapBuilder.ToImage();
                 }
+                //else if (actionParameter == this._loadingCommand)
+                //{
+                //    bitmapBuilder.SetBackgroundImage(EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.loading_90x90.gif"));
+                //}
                 else
                 {
-                    bitmapBuilder.SetBackgroundImage(EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.unselected_receiver.png"));
+                    bitmapBuilder.FillRectangle(0, 0, 90, 90, BitmapColor.Black);
                     bitmapBuilder.DrawText(this.GetChromeCastDisplayName(actionParameter), BitmapColor.White);
-                    return bitmapBuilder.ToImage();
                 }
+                return bitmapBuilder.ToImage();
             }
         }
 

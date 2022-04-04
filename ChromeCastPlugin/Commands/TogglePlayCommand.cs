@@ -20,11 +20,6 @@
         private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
 
         #region PluginDynamicCommand overrides
-        //protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize) =>
-        //    (this.ChromeCastWrapper.PlayBackState != PlayBackState.Playing ? "Play" : "Pause") +
-        //    "\n" +
-        //    base.GetCommandDisplayName(actionParameter, imageSize);
-
         protected override void RunCommand(String actionParameter)
         {
             if (this.ChromeCastWrapper == null)
