@@ -102,6 +102,7 @@
                 if (this._receivers.FirstOrDefault(r => r.Id == this._selectedReceiver.Id) == null)
                 {
                     this._selectedReceiver = null;
+                    this.ChromeCastConnected?.Invoke(this, new ChromeCastEventArgs());
                     return true;
                 }
 

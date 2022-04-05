@@ -123,6 +123,7 @@
     <Compile Include="CommandFolders\ChromeCastSelectorCommandFolder.cs" />
     <Compile Include="Commands\StopCastCommand.cs" />
     <Compile Include="Commands\TogglePlayCommand.cs" />
+    <Compile Include="Common\Theme.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ChromeCastApplication.cs" />
     <Compile Include="ChromeCastPlugin.cs" />

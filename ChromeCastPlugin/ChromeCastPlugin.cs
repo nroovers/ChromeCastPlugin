@@ -24,10 +24,7 @@ namespace Loupedeck.ChromeCastPlugin
 
         public override void Unload()
         {
-            if (this.ChromeCastApi != null)
-            {
-                this.ChromeCastApi.Disconnect();
-            }
+            this.ChromeCastApi.Disconnect();
         }
 
         public override void RunCommand(String commandName, String parameter)

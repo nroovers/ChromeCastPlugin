@@ -5,6 +5,7 @@
     using System.Linq;
 
     using Loupedeck.ChromeCastPlugin.ChromeCastWrapper;
+    using Loupedeck.ChromeCastPlugin.Common;
 
     internal class ChromeCastSelectorCommandFolder : PluginDynamicFolder
     {
@@ -23,6 +24,27 @@
         private readonly String _notFoundCommand = "Chromecast not found";
 
         #region PluginDynamicFolder overrides
+
+        public override Boolean Load()
+        {
+            if (this.ChromeCastWrapper != null)
+            {
+                this.ChromeCastWrapper.ChromeCastConnected += this.ChromeCastApi_onChromeCastConnected;
+            }
+
+            return base.Load();
+        }
+
+        public override Boolean Unload()
+        {
+            if (this.ChromeCastWrapper != null)
+            {
+                this.ChromeCastWrapper.ChromeCastConnected -= this.ChromeCastApi_onChromeCastConnected;
+            }
+
+            return base.Unload();
+        }
+
         public override Boolean Activate()
         {
             this.LoadChromeCastRecievers();
@@ -49,7 +71,7 @@
 
         public override String GetButtonDisplayName(PluginImageSize imageSize) =>
             this.ChromeCastWrapper.ConnectedChromeCast != null
-            ? this.ChromeCastWrapper.ConnectedChromeCast.Name + " selected"
+            ? this.GetChromecastDisplayName(this.ChromeCastWrapper.ConnectedChromeCast) + " selected"
             : base.GetButtonDisplayName(imageSize);
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
@@ -58,8 +80,10 @@
             {
                 if (this.ChromeCastWrapper.ConnectedChromeCast?.Id == actionParameter)
                 {
-                    bitmapBuilder.FillRectangle(0, 0, 90, 90, BitmapColor.White);
-                    bitmapBuilder.DrawText(this.GetChromeCastDisplayName(actionParameter), BitmapColor.Black);
+                    bitmapBuilder.FillRectangle(0, 0, 90, 90, BitmapColor.Black);
+                    bitmapBuilder.DrawText(this.GetCommandDisplayName(actionParameter), BitmapColor.White);
+                    bitmapBuilder.DrawLine(0, 5, 90, 5, Theme.PrimaryColor, 5);
+                    bitmapBuilder.DrawLine(0, 75, 90, 75, Theme.PrimaryColor, 5);
                     return bitmapBuilder.ToImage();
                 }
                 //else if (actionParameter == this._loadingCommand)
@@ -69,7 +93,7 @@
                 else
                 {
                     bitmapBuilder.FillRectangle(0, 0, 90, 90, BitmapColor.Black);
-                    bitmapBuilder.DrawText(this.GetChromeCastDisplayName(actionParameter), BitmapColor.White);
+                    bitmapBuilder.DrawText(this.GetCommandDisplayName(actionParameter), BitmapColor.White);
                 }
                 return bitmapBuilder.ToImage();
             }
@@ -107,13 +131,14 @@
         #endregion
 
         #region Private functions
+        private void ChromeCastApi_onChromeCastConnected(Object sender, ChromeCastEventArgs e) => this.ButtonActionNamesChanged();
+
         private async void LoadChromeCastRecievers()
         {
             try
             {
                 await this.ChromeCastWrapper.SearchChromeCasts();
                 this._isLoaded = true;
-
                 this.ButtonActionNamesChanged();
             }
             catch (Exception e)
@@ -122,21 +147,24 @@
             }
         }
 
-        private String GetChromeCastDisplayName(String commandParameter)
+        private String GetCommandDisplayName(String commandParameter)
         {
             if (commandParameter == this._loadingCommand)
             {
                 return this._loadingCommand;
             }
+            return this.GetChromecastDisplayName(this.ChromeCastWrapper.ChromeCasts.FirstOrDefault(cc => cc.Id == commandParameter));
+        }
 
-            var receiverDisplayName = this.ChromeCastWrapper.ChromeCasts.FirstOrDefault(cc => cc.Id == commandParameter)?.Name;
+        private String GetChromecastDisplayName(ChromeCast chromeCast)
+        {
+            return chromeCast?.Name;
+
             //if (deviceDisplayName != null && !deviceDisplayName.Contains(" ") && deviceDisplayName.Length > 9)
             //{
             //    var updatedDisplayName = deviceDisplayName.Insert(9, "\n");
             //    return updatedDisplayName.Length > 18 ? updatedDisplayName.Insert(18, "\n") : updatedDisplayName;
             //}
-
-            return receiverDisplayName;
         }
         #endregion
     }
