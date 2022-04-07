@@ -76,23 +76,25 @@
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
+            if (actionParameter == this._loadingCommand)
+            {
+                return EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.loading_90x90.gif");
+            }
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
             {
+                bitmapBuilder.FillRectangle(0, 0, 90, 90, BitmapColor.Black);
                 if (this.ChromeCastWrapper.ConnectedChromeCast?.Id == actionParameter)
                 {
-                    bitmapBuilder.FillRectangle(0, 0, 90, 90, BitmapColor.Black);
                     bitmapBuilder.DrawText(this.GetCommandDisplayName(actionParameter), BitmapColor.White);
                     bitmapBuilder.DrawLine(0, 5, 90, 5, Theme.PrimaryColor, 5);
                     bitmapBuilder.DrawLine(0, 75, 90, 75, Theme.PrimaryColor, 5);
-                    return bitmapBuilder.ToImage();
                 }
-                //else if (actionParameter == this._loadingCommand)
-                //{
-                //    bitmapBuilder.SetBackgroundImage(EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.loading_90x90.gif"));
-                //}
+                else if (actionParameter == this._notFoundCommand)
+                {
+                    bitmapBuilder.DrawText(this._notFoundCommand, BitmapColor.White);
+                }
                 else
                 {
-                    bitmapBuilder.FillRectangle(0, 0, 90, 90, BitmapColor.Black);
                     bitmapBuilder.DrawText(this.GetCommandDisplayName(actionParameter), BitmapColor.White);
                 }
                 return bitmapBuilder.ToImage();
@@ -131,7 +133,7 @@
         #endregion
 
         #region Private functions
-        private void ChromeCastApi_onChromeCastConnected(Object sender, ChromeCastEventArgs e) => this.ButtonActionNamesChanged();
+        private void ChromeCastApi_onChromeCastConnected(Object sender, ChromeCastConnectedEventArgs e) => this.ButtonActionNamesChanged();
 
         private async void LoadChromeCastRecievers()
         {
@@ -149,11 +151,9 @@
 
         private String GetCommandDisplayName(String commandParameter)
         {
-            if (commandParameter == this._loadingCommand)
-            {
-                return this._loadingCommand;
-            }
-            return this.GetChromecastDisplayName(this.ChromeCastWrapper.ChromeCasts.FirstOrDefault(cc => cc.Id == commandParameter));
+            return commandParameter == this._loadingCommand
+                ? this._loadingCommand
+                : this.GetChromecastDisplayName(this.ChromeCastWrapper.ChromeCasts.FirstOrDefault(cc => cc.Id == commandParameter));
         }
 
         private String GetChromecastDisplayName(ChromeCast chromeCast)

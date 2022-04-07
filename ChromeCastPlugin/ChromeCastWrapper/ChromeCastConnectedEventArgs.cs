@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal class ChromeCastEventArgs : EventArgs
+    internal class ChromeCastConnectedEventArgs : EventArgs
     {
         internal ChromeCast ChromeCast { get; set; }
     }

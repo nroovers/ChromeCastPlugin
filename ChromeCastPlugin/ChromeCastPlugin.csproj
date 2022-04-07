@@ -116,7 +116,7 @@
   <ItemGroup>
     <Compile Include="Adjustments\VolumeAdjustment.cs" />
     <Compile Include="ChromeCastWrapper\ChromeCast.cs" />
-    <Compile Include="ChromeCastWrapper\ChromeCastEventArgs.cs" />
+    <Compile Include="ChromeCastWrapper\ChromeCastConnectedEventArgs.cs" />
     <Compile Include="ChromeCastWrapper\ChromeCastStatusEventArgs.cs" />
     <Compile Include="ChromeCastWrapper\GoogleCastWrapper.cs" />
     <Compile Include="ChromeCastWrapper\IChromeCastWrapper.cs" />

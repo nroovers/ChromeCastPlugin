@@ -13,7 +13,7 @@
 
     internal interface IChromeCastWrapper
     {
-        event EventHandler<ChromeCastEventArgs> ChromeCastConnected;
+        event EventHandler<ChromeCastConnectedEventArgs> ChromeCastConnected;
 
         event EventHandler<ChromeCastStatusEventArgs> StatusChanged;
 

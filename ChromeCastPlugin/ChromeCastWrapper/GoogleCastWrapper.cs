@@ -77,7 +77,7 @@
 
         #region IChromeCastWrapper event handlers
 
-        public event EventHandler<ChromeCastEventArgs> ChromeCastConnected;
+        public event EventHandler<ChromeCastConnectedEventArgs> ChromeCastConnected;
 
         public event EventHandler<ChromeCastStatusEventArgs> StatusChanged;
 
@@ -94,7 +94,7 @@
                     return true;
                 }
 
-                if (this._receivers?.Count() == 0)
+                if (this._receivers == null || this._receivers.Count() == 0)
                 {
                     await this.SearchChromeCasts();
                 }
@@ -102,7 +102,7 @@
                 if (this._receivers.FirstOrDefault(r => r.Id == this._selectedReceiver.Id) == null)
                 {
                     this._selectedReceiver = null;
-                    this.ChromeCastConnected?.Invoke(this, new ChromeCastEventArgs());
+                    this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs());
                     return true;
                 }
 
@@ -114,7 +114,7 @@
 
                 this.ConnectEventHandlers();
 
-                this.ChromeCastConnected?.Invoke(this, new ChromeCastEventArgs() { ChromeCast = ConnectedChromeCast });
+                this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCast = ConnectedChromeCast });
             }
             catch (Exception)
             {
@@ -147,7 +147,7 @@
 
                     this.ConnectEventHandlers();
 
-                    this.ChromeCastConnected?.Invoke(this, new ChromeCastEventArgs() { ChromeCast = chromeCast });
+                    this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCast = chromeCast });
                 }
             }
             catch (Exception)
@@ -298,10 +298,8 @@
             if (status == null)
             {
                 this.PlayBackState = PlayBackState.Idle;
-                return;
             }
-
-            if (status.PlayerState == "PLAYING")
+            else if (status.PlayerState == "PLAYING")
             {
                 this.PlayBackState = PlayBackState.Playing;
             }

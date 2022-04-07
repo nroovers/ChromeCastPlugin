@@ -96,7 +96,7 @@
 
         #region Private functions
 
-        private void ChromeCastApi_onChromeCastConnected(Object sender, ChromeCastWrapper.ChromeCastEventArgs e) => this.ActionImageChanged();
+        private void ChromeCastApi_onChromeCastConnected(Object sender, ChromeCastWrapper.ChromeCastConnectedEventArgs e) => this.ActionImageChanged();
 
         private void ChromeCastApi_onStatusChanged(Object sender, ChromeCastWrapper.ChromeCastStatusEventArgs e) => this.ActionImageChanged();
 
