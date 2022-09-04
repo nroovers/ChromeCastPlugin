@@ -9,7 +9,7 @@
         public StopCastCommand() : base(
             "Stop Cast",
             "Stop the current ongoing cast",
-            "Chromecast")
+            "")
         {
         }
 

@@ -1,0 +1,13 @@
+﻿type: plugin4
+name: ChromeCast
+displayName: ChromeCast
+version: 0.0.1
+author: Nicolai Roovers
+copyright: <copyright>
+
+supportedDevices:
+    - LoupedeckCtFamily
+
+pluginFileName: ChromeCastPlugin.dll
+pluginFolderWin: .
+pluginFolderMac: .

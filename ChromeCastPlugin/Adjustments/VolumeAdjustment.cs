@@ -9,12 +9,13 @@
         public VolumeAdjustment() : base(
             "CCast volume",
             "Adjust chromecast volume level",
-            "Chromecast",
+            "",
             true)
         {
         }
 
         private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
+
         private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
 
         #region PluginDynamicAdjustment overrides

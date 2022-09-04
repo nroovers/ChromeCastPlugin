@@ -13,8 +13,8 @@
         public TogglePlayCommand() : base(
             "Play",
             "Select, play and pause online media",
-            "Chromecast")
-            => this.MakeProfileAction("text;Enter url of media to cast:");
+            "")
+            => this.MakeProfileAction("text;URL of media to cast");
 
         private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
         private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;

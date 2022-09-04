@@ -12,7 +12,6 @@
 
     internal class GoogleCastWrapper : IChromeCastWrapper
     {
-
         private IEnumerable<IReceiver> _receivers;
         private IReceiver _selectedReceiver;
         private Boolean _isMuted = false;

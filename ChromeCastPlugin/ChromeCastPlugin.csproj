@@ -21,7 +21,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\Users\Nicolai Roovers\AppData\Local\Loupedeck\Plugins\ChromeCastPlugin\</OutputPath>
+    <OutputPath>..\..\..\Users\Nicolai Roovers\AppData\Local\Loupedeck\Plugins\ChromeCast\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -133,7 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Installer\LoupedeckPackage.yaml" />
+    <None Include="metadata\LoupedeckPackage.yaml" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -149,14 +149,14 @@
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>ECHO "Set archive"
-SET archive=$(SolutionDir)bin\$(ConfigurationName)\Installer\ChromecastPlugin.lplug4
+SET archive=$(SolutionDir)bin\$(ConfigurationName)\Installer\ChromeCast.lplug4
 ECHO "%25archive%25"
 
 ECHO "Delete archive"
 DEL %25archive%25
 
 ECHO "ZIP archive"
-7z a -tzip %25archive%25 $(ProjectDir)\Installer\LoupedeckPackage.yaml
-7z a -tzip %25archive%25 "$(TargetDir)"</PostBuildEvent>
+7z a -tzip %25archive%25 $(ProjectDir)\metadata\
+7z a -tzip %25archive%25 "$(TargetDir)\*"</PostBuildEvent>
   </PropertyGroup>
 </Project>

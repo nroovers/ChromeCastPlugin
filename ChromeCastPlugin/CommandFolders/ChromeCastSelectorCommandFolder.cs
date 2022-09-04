@@ -12,7 +12,7 @@
         public ChromeCastSelectorCommandFolder()
         {
             this.DisplayName = "Select Chromecast";
-            this.GroupName = "Chromecast";
+            this.GroupName = "Devices2";
             this.Navigation = PluginDynamicFolderNavigation.ButtonArea;
         }
 
@@ -31,7 +31,6 @@
             {
                 this.ChromeCastWrapper.ChromeCastConnected += this.ChromeCastApi_onChromeCastConnected;
             }
-
             return base.Load();
         }
 
@@ -41,14 +40,12 @@
             {
                 this.ChromeCastWrapper.ChromeCastConnected -= this.ChromeCastApi_onChromeCastConnected;
             }
-
             return base.Unload();
         }
 
         public override Boolean Activate()
         {
             this.LoadChromeCastRecievers();
-
             return true;
         }
 
@@ -58,12 +55,10 @@
             {
                 return new String[] { this.CreateCommandName(this._loadingCommand) };
             }
-
             if (this.ChromeCastWrapper.ChromeCasts == null || !this.ChromeCastWrapper.ChromeCasts.Any())
             {
                 return new String[] { this.CreateCommandName(this._notFoundCommand) };
             }
-
             return this.ChromeCastWrapper.ChromeCasts
                 .OrderBy(chromeCast => chromeCast.Name)
                 .Select(chromeCast => this.CreateCommandName(chromeCast.Id));
@@ -76,10 +71,10 @@
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            if (actionParameter == this._loadingCommand)
-            {
-                return EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.loading_90x90.gif");
-            }
+            //if (actionParameter == this._loadingCommand)
+            //{
+            //    return EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.loading_90x90.gif");
+            //}
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
             {
                 bitmapBuilder.FillRectangle(0, 0, 90, 90, BitmapColor.Black);
@@ -89,9 +84,11 @@
                     bitmapBuilder.DrawLine(0, 5, 90, 5, Theme.PrimaryColor, 5);
                     bitmapBuilder.DrawLine(0, 75, 90, 75, Theme.PrimaryColor, 5);
                 }
-                else if (actionParameter == this._notFoundCommand)
+
+                else if (actionParameter == this._notFoundCommand ||
+                    actionParameter == this._loadingCommand)
                 {
-                    bitmapBuilder.DrawText(this._notFoundCommand, BitmapColor.White);
+                    bitmapBuilder.DrawText(actionParameter, BitmapColor.White);
                 }
                 else
                 {
@@ -105,6 +102,14 @@
         {
             if (commandParameter == this._loadingCommand)
             {
+                return;
+            }
+
+            if (commandParameter == this._notFoundCommand)
+            {
+                this._isLoaded = false;
+                this.ButtonActionNamesChanged();
+                this.LoadChromeCastRecievers();
                 return;
             }
 
