@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Web.Configuration;
 
     using GoogleCast;
     using GoogleCast.Channels;
@@ -17,7 +18,12 @@
         private Boolean _isMuted = false;
         private Int32 _volume = 50;
         private readonly Sender _sender = new Sender();
-        //private Application _application;
+        private IDisposable _unsubscribeFindReceiversContinuous;
+
+        public GoogleCastWrapper()
+        {
+        }
+
 
         #region IChromeCastWrapper properties
 
@@ -72,13 +78,17 @@
 
         public String PlayBackUrl { get; private set; }
 
+        public Boolean IsContinuousSearchActive { get; private set; } = false;
+
         #endregion
 
         #region IChromeCastWrapper event handlers
 
         public event EventHandler<ChromeCastConnectedEventArgs> ChromeCastConnected;
 
-        public event EventHandler<ChromeCastStatusEventArgs> StatusChanged;
+        public event EventHandler<ChromeCastStatusUpdatedEventArgs> StatusChanged;
+
+        public event EventHandler<ChromeCastsUpdatedEventArgs> ChromeCastsUpdated;
 
         #endregion
 
@@ -170,10 +180,28 @@
             return true;
         }
 
+        public Boolean ActivateContinuousSearch()
+        {
+            if (this._unsubscribeFindReceiversContinuous != null)
+            {
+                this._unsubscribeFindReceiversContinuous.Dispose();
+            }
+            this._unsubscribeFindReceiversContinuous = new DeviceLocator().FindReceiversContinuous().Subscribe(this.OnNext);
+            this.IsContinuousSearchActive = true;
+            return true;
+        }
+
+        public Boolean DeactivateContinuousSearch()
+        {
+            this._unsubscribeFindReceiversContinuous.Dispose();
+            this.IsContinuousSearchActive = false;
+            return true;
+        }
+
         public async Task<Boolean> SearchChromeCasts()
         {
             this._receivers = await new DeviceLocator().FindReceiversAsync();
-
+            this.ChromeCastsUpdated?.Invoke(this, new ChromeCastsUpdatedEventArgs());
             return true;
         }
 
@@ -289,7 +317,7 @@
             this._isMuted = status.Volume.IsMuted ?? false;
             this._volume = (Int32)(status.Volume.Level * 100);
 
-            this.StatusChanged?.Invoke(this, new ChromeCastStatusEventArgs() { Volume = this._volume, IsMuted = this._isMuted });
+            this.StatusChanged?.Invoke(this, new ChromeCastStatusUpdatedEventArgs() { Volume = this._volume, IsMuted = this._isMuted });
         }
 
         private void SetMediaStatus(MediaStatus status)
@@ -339,6 +367,17 @@
                 this._sender.GetChannel<IMediaChannel>().StatusChanged -= this.GoogleCastWrapper_MediaStatusChanged;
             }
         }
+
+        public void OnNext(IReceiver receiver)
+        {
+            if (this._receivers == null)
+            {
+                this._receivers = new List<IReceiver>();
+            }
+            this._receivers = this._receivers.Append(receiver);
+            this.ChromeCastsUpdated?.Invoke(this, new ChromeCastsUpdatedEventArgs());
+        }
+
         #endregion
     }
 }

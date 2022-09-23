@@ -12,56 +12,68 @@
         public ChromeCastSelectorCommandFolder()
         {
             this.DisplayName = "Select Chromecast";
-            this.GroupName = "Devices2";
-            this.Navigation = PluginDynamicFolderNavigation.ButtonArea;
+            this.GroupName = "Devices";
         }
 
         private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
         private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
 
-        private Boolean _isLoaded = false;
-        private readonly String _loadingCommand = "Loading...";
+        private Boolean _isLoaded;
+        private readonly String _loadingCommand = "Searching...";
         private readonly String _notFoundCommand = "Chromecast not found";
 
         #region PluginDynamicFolder overrides
 
         public override Boolean Load()
         {
+            this._isLoaded = this.ChromeCastWrapper.IsContinuousSearchActive;
+
             if (this.ChromeCastWrapper != null)
             {
-                this.ChromeCastWrapper.ChromeCastConnected += this.ChromeCastApi_onChromeCastConnected;
+                this.ChromeCastWrapper.ChromeCastConnected += this.ChromeCastWrapper_ChromeCastConnected;
+                this.ChromeCastWrapper.ChromeCastsUpdated += this.ChromeCastWrapper_ChromeCastsUpdated;
             }
             return base.Load();
         }
+
 
         public override Boolean Unload()
         {
             if (this.ChromeCastWrapper != null)
             {
-                this.ChromeCastWrapper.ChromeCastConnected -= this.ChromeCastApi_onChromeCastConnected;
+                this.ChromeCastWrapper.ChromeCastConnected -= this.ChromeCastWrapper_ChromeCastConnected;
+                this.ChromeCastWrapper.ChromeCastsUpdated -= this.ChromeCastWrapper_ChromeCastsUpdated;
             }
             return base.Unload();
         }
 
         public override Boolean Activate()
         {
-            this.LoadChromeCastRecievers();
+            if (!this._isLoaded)
+            {
+                this.LoadChromeCastRecievers();
+            }
             return true;
         }
 
-        public override IEnumerable<String> GetButtonPressActionNames()
+        public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _) => PluginDynamicFolderNavigation.ButtonArea;
+
+        public override IEnumerable<String> GetButtonPressActionNames(DeviceType _)
         {
             if (!this._isLoaded)
             {
                 return new String[] { this.CreateCommandName(this._loadingCommand) };
             }
-            if (this.ChromeCastWrapper.ChromeCasts == null || !this.ChromeCastWrapper.ChromeCasts.Any())
+            else if (this.ChromeCastWrapper.ChromeCasts == null || !this.ChromeCastWrapper.ChromeCasts.Any())
             {
                 return new String[] { this.CreateCommandName(this._notFoundCommand) };
             }
-            return this.ChromeCastWrapper.ChromeCasts
-                .OrderBy(chromeCast => chromeCast.Name)
-                .Select(chromeCast => this.CreateCommandName(chromeCast.Id));
+            else
+            {
+                return this.ChromeCastWrapper.ChromeCasts
+                    .OrderBy(chromeCast => chromeCast.Name)
+                    .Select(chromeCast => this.CreateCommandName(chromeCast.Id));
+            }
         }
 
         public override String GetButtonDisplayName(PluginImageSize imageSize) =>
@@ -71,10 +83,6 @@
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            //if (actionParameter == this._loadingCommand)
-            //{
-            //    return EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.loading_90x90.gif");
-            //}
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
             {
                 bitmapBuilder.FillRectangle(0, 0, 90, 90, BitmapColor.Black);
@@ -84,7 +92,6 @@
                     bitmapBuilder.DrawLine(0, 5, 90, 5, Theme.PrimaryColor, 5);
                     bitmapBuilder.DrawLine(0, 75, 90, 75, Theme.PrimaryColor, 5);
                 }
-
                 else if (actionParameter == this._notFoundCommand ||
                     actionParameter == this._loadingCommand)
                 {
@@ -138,7 +145,9 @@
         #endregion
 
         #region Private functions
-        private void ChromeCastApi_onChromeCastConnected(Object sender, ChromeCastConnectedEventArgs e) => this.ButtonActionNamesChanged();
+        private void ChromeCastWrapper_ChromeCastConnected(Object sender, ChromeCastConnectedEventArgs e) => this.ButtonActionNamesChanged();
+
+        private void ChromeCastWrapper_ChromeCastsUpdated(Object sender, ChromeCastsUpdatedEventArgs e) => this.ButtonActionNamesChanged();
 
         private async void LoadChromeCastRecievers()
         {
@@ -164,7 +173,6 @@
         private String GetChromecastDisplayName(ChromeCast chromeCast)
         {
             return chromeCast?.Name;
-
             //if (deviceDisplayName != null && !deviceDisplayName.Contains(" ") && deviceDisplayName.Length > 9)
             //{
             //    var updatedDisplayName = deviceDisplayName.Insert(9, "\n");

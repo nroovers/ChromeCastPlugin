@@ -117,11 +117,14 @@
     <Compile Include="Adjustments\VolumeAdjustment.cs" />
     <Compile Include="ChromeCastWrapper\ChromeCast.cs" />
     <Compile Include="ChromeCastWrapper\ChromeCastConnectedEventArgs.cs" />
-    <Compile Include="ChromeCastWrapper\ChromeCastStatusEventArgs.cs" />
+    <Compile Include="ChromeCastWrapper\ChromeCastsUpdatedEventArgs.cs" />
+    <Compile Include="ChromeCastWrapper\ChromeCastStatusUpdatedEventArgs.cs" />
+    <Compile Include="ChromeCastWrapper\GoogleCastFindReceiversContinousObserver.cs" />
     <Compile Include="ChromeCastWrapper\GoogleCastWrapper.cs" />
     <Compile Include="ChromeCastWrapper\IChromeCastWrapper.cs" />
     <Compile Include="CommandFolders\ChromeCastSelectorCommandFolder.cs" />
     <Compile Include="Commands\StopCastCommand.cs" />
+    <Compile Include="Commands\TogglePlayDirectCommand.cs" />
     <Compile Include="Commands\TogglePlayCommand.cs" />
     <Compile Include="Common\Theme.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

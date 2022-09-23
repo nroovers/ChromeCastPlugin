@@ -15,7 +15,11 @@
     {
         event EventHandler<ChromeCastConnectedEventArgs> ChromeCastConnected;
 
-        event EventHandler<ChromeCastStatusEventArgs> StatusChanged;
+        event EventHandler<ChromeCastStatusUpdatedEventArgs> StatusChanged;
+
+        event EventHandler<ChromeCastsUpdatedEventArgs> ChromeCastsUpdated;
+
+        Boolean IsContinuousSearchActive { get; }
 
         Boolean IsMuted { get; set; }
 
@@ -30,6 +34,10 @@
         ChromeCast ConnectedChromeCast { get; }
 
         Task<Boolean> SearchChromeCasts();
+
+        Boolean ActivateContinuousSearch();
+
+        Boolean DeactivateContinuousSearch();
 
         Task<Boolean> ReConnect();
 

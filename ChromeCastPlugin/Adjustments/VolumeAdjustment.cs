@@ -24,8 +24,8 @@
         {
             if (this.ChromeCastWrapper != null)
             {
-                this.ChromeCastWrapper.ChromeCastConnected += this.ChromeCastApi_onChromeCastConnected;
-                this.ChromeCastWrapper.StatusChanged += this.ChromeCastApi_onStatusChanged;
+                this.ChromeCastWrapper.ChromeCastConnected += this.ChromeCastWrapper_ChromeCastConnected;
+                this.ChromeCastWrapper.StatusChanged += this.ChromeCastWrapper_StatusChanged;
             }
 
             return base.OnLoad();
@@ -35,8 +35,8 @@
         {
             if (this.ChromeCastWrapper != null)
             {
-                this.ChromeCastWrapper.ChromeCastConnected -= this.ChromeCastApi_onChromeCastConnected;
-                this.ChromeCastWrapper.StatusChanged -= this.ChromeCastApi_onStatusChanged;
+                this.ChromeCastWrapper.ChromeCastConnected -= this.ChromeCastWrapper_ChromeCastConnected;
+                this.ChromeCastWrapper.StatusChanged -= this.ChromeCastWrapper_StatusChanged;
             }
 
             return base.OnUnload();
@@ -97,9 +97,9 @@
 
         #region Private functions
 
-        private void ChromeCastApi_onChromeCastConnected(Object sender, ChromeCastWrapper.ChromeCastConnectedEventArgs e) => this.ActionImageChanged();
+        private void ChromeCastWrapper_ChromeCastConnected(Object sender, ChromeCastWrapper.ChromeCastConnectedEventArgs e) => this.ActionImageChanged();
 
-        private void ChromeCastApi_onStatusChanged(Object sender, ChromeCastWrapper.ChromeCastStatusEventArgs e) => this.ActionImageChanged();
+        private void ChromeCastWrapper_StatusChanged(Object sender, ChromeCastWrapper.ChromeCastStatusUpdatedEventArgs e) => this.ActionImageChanged();
 
         #endregion
     }

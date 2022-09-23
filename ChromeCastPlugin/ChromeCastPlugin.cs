@@ -12,6 +12,12 @@ namespace Loupedeck.ChromeCastPlugin
 
         internal readonly IChromeCastWrapper ChromeCastApi = new GoogleCastWrapper();
 
+        public ChromeCastPlugin()
+        {
+            this.ChromeCastApi.ActivateContinuousSearch();
+        }
+
+
         public override void Load()
         {
             this.Info.Icon16x16 = EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.PluginIcon16x16.png");
@@ -27,6 +33,7 @@ namespace Loupedeck.ChromeCastPlugin
 
         public override void Unload()
         {
+            this.ChromeCastApi.DeactivateContinuousSearch();
             this.ChromeCastApi.Disconnect();
         }
 

@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class ChromeCastStatusEventArgs
+    public class ChromeCastStatusUpdatedEventArgs
     {
         internal Int32 Volume { get; set; }
 
