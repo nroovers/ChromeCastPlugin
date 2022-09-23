@@ -123,7 +123,7 @@
 
                 this.ConnectEventHandlers();
 
-                this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCast = ConnectedChromeCast });
+                this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCastId = this._selectedReceiver.Id });
             }
             catch (Exception)
             {
@@ -132,16 +132,16 @@
             return true;
         }
 
-        public async Task<Boolean> Connect(ChromeCast chromeCast)
+        public async Task<Boolean> Connect(String chromeCastId)
         {
-            if (chromeCast == null)
+            if (String.IsNullOrEmpty(chromeCastId))
             {
                 return false;
             }
 
             try
             {
-                var receiver = this._receivers.FirstOrDefault(r => r.Id == chromeCast.Id);
+                var receiver = this._receivers.FirstOrDefault(r => r.Id == chromeCastId);
 
                 if (receiver != null &&
                     this._selectedReceiver?.Id != receiver.Id)
@@ -156,7 +156,7 @@
 
                     this.ConnectEventHandlers();
 
-                    this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCast = chromeCast });
+                    this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCastId = chromeCastId });
                 }
             }
             catch (Exception)

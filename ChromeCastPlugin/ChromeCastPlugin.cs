@@ -17,7 +17,6 @@ namespace Loupedeck.ChromeCastPlugin
             this.ChromeCastApi.ActivateContinuousSearch();
         }
 
-
         public override void Load()
         {
             this.Info.Icon16x16 = EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.PluginIcon16x16.png");
@@ -25,6 +24,10 @@ namespace Loupedeck.ChromeCastPlugin
             this.Info.Icon48x48 = EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.PluginIcon48x48.png");
             this.Info.Icon256x256 = EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.Icons.PluginIcon256x256.png");
 
+            if (!this.ChromeCastApi.IsContinuousSearchActive)
+            {
+                this.ChromeCastApi.ActivateContinuousSearch();
+            }
             if (this.ChromeCastApi.ConnectedChromeCast != null)
             {
                 this.ChromeCastApi.ReConnect();
@@ -47,7 +50,7 @@ namespace Loupedeck.ChromeCastPlugin
 
         internal void HandleError(String msg, Exception e)
         {
-            Tracer.Trace($"ChromeCastPlugin: {msg}\n{e.Message}\n{e.InnerException}");
+            Tracer.Error(msg, e);
         }
 
         private void OnApplicationStarted(Object sender, EventArgs e)

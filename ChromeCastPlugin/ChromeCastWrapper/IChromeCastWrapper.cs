@@ -41,7 +41,7 @@
 
         Task<Boolean> ReConnect();
 
-        Task<Boolean> Connect(ChromeCast chromeCast);
+        Task<Boolean> Connect(String chromeCastId);
 
         Boolean Disconnect();
 

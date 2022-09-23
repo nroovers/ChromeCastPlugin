@@ -4,6 +4,6 @@
 
     internal class ChromeCastConnectedEventArgs : EventArgs
     {
-        internal ChromeCast ChromeCast { get; set; }
+        internal String ChromeCastId { get; set; }
     }
 }

@@ -128,7 +128,7 @@
 
                 if (selectedChromeCast != null)
                 {
-                    this.ChromeCastWrapper.Connect(selectedChromeCast);
+                    this.ChromeCastWrapper.Connect(selectedChromeCast.Id);
                     this.CommandImageChanged(commandParameter);
                 }
 
