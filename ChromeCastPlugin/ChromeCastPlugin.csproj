@@ -16,7 +16,6 @@
     <BaseIntermediateOutputPath>$(SolutionDir)\obj\</BaseIntermediateOutputPath>
     <BaseOutputPath>$(SolutionDir)\bin\</BaseOutputPath>
     <OutputPath>$(BaseOutputPath)$(Configuration)\</OutputPath>
-    <PluginPath>$([System.Environment]::GetFolderPath(SpecialFolder.LocalApplicationData))\Loupedeck\Plugins\ChromeCast\</PluginPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -115,14 +114,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="metadata\LoupedeckPackage.yaml" />
+    <None Include="Resources\PackageMetadata\LoupedeckPackage.yaml" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Icons\*.*" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\Icons\loupedeck_icon_300x300.png" />
+    <EmbeddedResource Include="Resources\PackageMetadata\Icon16x16.png" />
+    <EmbeddedResource Include="Resources\PackageMetadata\Icon256x256.png" />
+    <EmbeddedResource Include="Resources\PackageMetadata\Icon32x32.png" />
+    <EmbeddedResource Include="Resources\PackageMetadata\Icon48x48.png" />
+    <EmbeddedResource Include="Resources\Icons\loading_90x90.gif" />
+    <EmbeddedResource Include="Resources\Icons\loupedeck_icon_300x300.png" />
+    <EmbeddedResource Include="Resources\Icons\selected_receiver.png" />
+    <EmbeddedResource Include="Resources\Icons\unselected_receiver.png" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
@@ -133,16 +136,23 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <Target Name="PostBuildScript" AfterTargets="PostBuildEvent">
+  <Target Name="PackagePlugin" AfterTargets="PostBuildEvent">
     <ItemGroup>
       <SourceFiles Include="$(OutputPath)\*.*" />
-      <MetaDataFiles Include="$(ProjectDir)metadata\*.*" />
+      <MetaDataFiles Include="$(ProjectDir)Resources\PackageMetadata\*.*" />
     </ItemGroup>
+    <PropertyGroup>
+      <PluginPath>$([System.Environment]::GetFolderPath(SpecialFolder.LocalApplicationData))\Loupedeck\Plugins\ChromeCast\</PluginPath>
+      <PackageFilePath>$(OutputPath)package\ChromeCast.lplug4</PackageFilePath>
+      <PluginPackageToolPath>"C:\Program Files (x86)\Loupedeck\LoupedeckPluginTool\LoupedeckPluginTool.exe"</PluginPackageToolPath>
+    </PropertyGroup>
     <RemoveDir Directories="$(PluginPath)" />
-    <Message Text="Postbuild: Copy files" />
+    <Message Text="Postbuild: Copy package files" />
     <Copy SourceFiles="@(SourceFiles)" DestinationFolder="$(PluginPath)" />
     <Copy SourceFiles="@(MetaDataFiles)" DestinationFolder="$(PluginPath)\metadata" />
-    <Message Text="Postbuild: Exec package tool " />
-    <Exec Command="&quot;C:\Program Files (x86)\Loupedeck\LoupedeckPluginTool\LoupedeckPluginTool.exe&quot; pack -input=$(PluginPath) -output=$(OutputPath)\package\ChromeCast.lplug4" />
+    <Message Text="Postbuild: Create plugin package " />
+    <Exec Command="$(PluginPackageToolPath) pack -input=$(PluginPath) -output=$(PackageFilePath)" />
+    <Message Text="Postbuild: Verify plugin package " />
+    <Exec Command="$(PluginPackageToolPath) verify -path=$(PackageFilePath)" />
   </Target>
 </Project>
