@@ -1,4 +1,7 @@
-﻿//namespace Loupedeck.ChromeCastPlugin.ChromeCastWrapper
+﻿#pragma warning disable SA1633 // File should have header
+#pragma warning disable SA1005 // Single line comments should begin with single space
+#pragma warning disable SA1515 // Single-line comment should be preceded by blank line
+//namespace Loupedeck.ChromeCastPlugin.ChromeCastWrapper
 //{
 //    using System;
 //    using System.Collections.Generic;
@@ -27,3 +30,6 @@
 //        }
 //    }
 //}
+#pragma warning restore SA1633 // File should have header
+#pragma warning restore SA1005 // Single line comments should begin with single space
+#pragma warning restore SA1515 // Single-line comment should be preceded by blank line

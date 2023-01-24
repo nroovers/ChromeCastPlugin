@@ -6,19 +6,18 @@
 
     internal class VolumeAdjustment : PluginDynamicAdjustment
     {
-        public VolumeAdjustment() : base(
-            "CCast volume",
-            "Adjust chromecast volume level",
-            "",
-            true)
+        public VolumeAdjustment()
+            : base(
+                "CCast volume",
+                "Adjust chromecast volume level",
+                String.Empty,
+                true)
         {
         }
 
         private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
 
         private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
-
-        #region PluginDynamicAdjustment overrides
 
         protected override Boolean OnLoad()
         {
@@ -93,14 +92,9 @@
 
             return this.ChromeCastWrapper.Volume.ToString();
         }
-        #endregion
-
-        #region Private functions
 
         private void ChromeCastWrapper_ChromeCastConnected(Object sender, ChromeCastWrapper.ChromeCastConnectedEventArgs e) => this.ActionImageChanged();
 
         private void ChromeCastWrapper_StatusChanged(Object sender, ChromeCastWrapper.ChromeCastStatusUpdatedEventArgs e) => this.ActionImageChanged();
-
-        #endregion
     }
 }

@@ -8,7 +8,7 @@
     {
         Idle,
         Playing,
-        Paused
+        Paused,
     }
 
     internal interface IChromeCastWrapper

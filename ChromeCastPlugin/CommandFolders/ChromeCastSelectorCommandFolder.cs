@@ -9,6 +9,10 @@
 
     internal class ChromeCastSelectorCommandFolder : PluginDynamicFolder
     {
+        private readonly String _loadingCommand = "Searching...";
+        private readonly String _notFoundCommand = "Chromecast not found";
+        private Boolean _isLoaded;
+
         public ChromeCastSelectorCommandFolder()
         {
             this.DisplayName = "Select Chromecast";
@@ -16,13 +20,8 @@
         }
 
         private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
+
         private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
-
-        private Boolean _isLoaded;
-        private readonly String _loadingCommand = "Searching...";
-        private readonly String _notFoundCommand = "Chromecast not found";
-
-        #region PluginDynamicFolder overrides
 
         public override Boolean Load()
         {
@@ -33,9 +32,9 @@
                 this.ChromeCastWrapper.ChromeCastConnected += this.ChromeCastWrapper_ChromeCastConnected;
                 this.ChromeCastWrapper.ChromeCastsUpdated += this.ChromeCastWrapper_ChromeCastsUpdated;
             }
+
             return base.Load();
         }
-
 
         public override Boolean Unload()
         {
@@ -44,6 +43,7 @@
                 this.ChromeCastWrapper.ChromeCastConnected -= this.ChromeCastWrapper_ChromeCastConnected;
                 this.ChromeCastWrapper.ChromeCastsUpdated -= this.ChromeCastWrapper_ChromeCastsUpdated;
             }
+
             return base.Unload();
         }
 
@@ -53,6 +53,7 @@
             {
                 this.LoadChromeCastRecievers();
             }
+
             return true;
         }
 
@@ -101,6 +102,7 @@
                 {
                     bitmapBuilder.DrawText(this.GetCommandDisplayName(actionParameter), BitmapColor.White);
                 }
+
                 return bitmapBuilder.ToImage();
             }
         }
@@ -142,9 +144,7 @@
                 this.ChromeCastPlugin.HandleError("Select chromecast failed", e);
             }
         }
-        #endregion
 
-        #region Private functions
         private void ChromeCastWrapper_ChromeCastConnected(Object sender, ChromeCastConnectedEventArgs e) => this.ButtonActionNamesChanged();
 
         private void ChromeCastWrapper_ChromeCastsUpdated(Object sender, ChromeCastsUpdatedEventArgs e) => this.ButtonActionNamesChanged();
@@ -173,12 +173,6 @@
         private String GetChromecastDisplayName(ChromeCast chromeCast)
         {
             return chromeCast?.Name;
-            //if (deviceDisplayName != null && !deviceDisplayName.Contains(" ") && deviceDisplayName.Length > 9)
-            //{
-            //    var updatedDisplayName = deviceDisplayName.Insert(9, "\n");
-            //    return updatedDisplayName.Length > 18 ? updatedDisplayName.Insert(18, "\n") : updatedDisplayName;
-            //}
         }
-        #endregion
     }
 }

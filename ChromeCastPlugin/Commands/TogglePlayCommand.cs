@@ -1,18 +1,16 @@
 ﻿namespace Loupedeck.ChromeCastPlugin.Commands
 {
     using System;
-    using Loupedeck.ChromeCastPlugin.ChromeCastWrapper;
 
-    // Examples:
-    // http://icecast.vrtcdn.be/stubru-high.mp3 
-    // http://stream.radiohelsinki.fi:8002/;?type=http&nocache=13776
+    using Loupedeck.ChromeCastPlugin.ChromeCastWrapper;
 
     internal class TogglePlayCommand : PluginMultistateDynamicCommand
     {
-        public TogglePlayCommand() : base(
-            "Play",
-            "Select, play and pause online media",
-            "")
+        public TogglePlayCommand()
+            : base(
+                "Play",
+                "Select, play and pause online media",
+                String.Empty)
         {
             this.AddState("Pause", "Pause");
             this.AddState("Play", "Play");
@@ -20,8 +18,6 @@
         }
 
         private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
-
-        #region PluginDynamicCommand overrides
 
         protected override void RunCommand(String actionParameter)
         {
@@ -43,6 +39,7 @@
                     this.ChromeCastPlugin.ChromeCastApi.PauseCast();
                     this.SetCurrentState(actionParameter, 0);
                 }
+
                 this.ActionImageChanged(actionParameter);
             }
             catch (Exception e)
@@ -50,6 +47,5 @@
                 this.ChromeCastPlugin.HandleError("Toggle play failed", e);
             }
         }
-        #endregion
     }
 }

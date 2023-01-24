@@ -1,26 +1,14 @@
 ﻿namespace Loupedeck.ChromeCastPlugin.Commands
 {
     using System;
-    using System.Security.Policy;
 
     using Loupedeck.ChromeCastPlugin.ChromeCastWrapper;
-
-    // Examples:
-    // http://icecast.vrtcdn.be/stubru-high.mp3 
-    // http://icecast.vrtcdn.be/klara-high.mp3 
-    // http://icecast.vrtcdn.be/radio1-high.mp3 
-    // http://stream.radiohelsinki.fi:8002/;?type=http&nocache=13776
-    // https://stream.radioplay.fi/basso/bassoradio_64.aac     (basso)
 
     internal class TogglePlayDirectCommand : ActionEditorCommand
     {
         private const String UrlControlName = "url";
         private const String IsPreSelectedControlName = "pre-selected";
         private const String DeviceIdControlName = "deviceId";
-
-        private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
-        private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
-
 
         public TogglePlayDirectCommand()
         {
@@ -37,7 +25,10 @@
             this.ActionEditor.ControlValueChanged += this.ActionEditor_ControlValueChanged;
         }
 
-        #region PluginDynamicCommand overrides
+        private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
+
+        private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
+
         protected override Boolean OnLoad()
         {
             this.ChromeCastWrapper.ChromeCastsUpdated += this.ChromeCastWrapper_ChromeCastsUpdated;
@@ -58,17 +49,16 @@
             {
                 return true;
             }
+
             this.PlayPauseAsync(new Parameters()
             {
                 Url = actionParameters.GetString(UrlControlName),
                 IsPreselected = actionParameters.GetBoolean(IsPreSelectedControlName),
-                DeviceId = actionParameters.GetString(DeviceIdControlName)
+                DeviceId = actionParameters.GetString(DeviceIdControlName),
             });
             return true;
         }
-        #endregion
 
-        #region Private methods
         private async void PlayPauseAsync(Parameters parameters)
         {
             if (parameters.IsPreselected &&
@@ -107,6 +97,7 @@
                 }
             }
         }
+
         private void ActionEditor_ListboxItemsRequested(Object _, ActionEditorListboxItemsRequestedEventArgs e)
         {
             if (e.ControlName.EqualsNoCase(DeviceIdControlName))
@@ -117,12 +108,13 @@
                 }
             }
         }
-        #endregion
 
-        class Parameters
+        private class Parameters
         {
             public String Url { get; set; }
+
             public Boolean IsPreselected { get; set; }
+
             public String DeviceId { get; set; }
         }
     }

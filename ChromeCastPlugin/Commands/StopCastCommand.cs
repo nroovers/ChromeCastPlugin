@@ -6,14 +6,16 @@
 
     internal class StopCastCommand : PluginDynamicCommand
     {
-        public StopCastCommand() : base(
+        public StopCastCommand()
+            : base(
             "Stop Cast",
             "Stop the current ongoing cast",
-            "")
+            string.Empty)
         {
         }
 
         private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
+
         private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
 
         protected override void RunCommand(String actionParameter)

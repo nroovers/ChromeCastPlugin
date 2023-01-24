@@ -28,6 +28,7 @@ namespace Loupedeck.ChromeCastPlugin
             {
                 this.ChromeCastApi.ActivateContinuousSearch();
             }
+
             if (this.ChromeCastApi.ConnectedChromeCast != null)
             {
                 this.ChromeCastApi.ReConnect();

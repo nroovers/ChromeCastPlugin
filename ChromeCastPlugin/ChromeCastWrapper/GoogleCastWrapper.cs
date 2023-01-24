@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Web.Configuration;
 
     using GoogleCast;
     using GoogleCast.Channels;
@@ -13,19 +12,22 @@
 
     internal class GoogleCastWrapper : IChromeCastWrapper
     {
+        private readonly Sender _sender = new Sender();
         private IEnumerable<IReceiver> _receivers;
         private IReceiver _selectedReceiver;
         private Boolean _isMuted = false;
         private Int32 _volume = 50;
-        private readonly Sender _sender = new Sender();
         private IDisposable _unsubscribeFindReceiversContinuous;
 
         public GoogleCastWrapper()
         {
         }
 
+        public event EventHandler<ChromeCastConnectedEventArgs> ChromeCastConnected;
 
-        #region IChromeCastWrapper properties
+        public event EventHandler<ChromeCastStatusUpdatedEventArgs> StatusChanged;
+
+        public event EventHandler<ChromeCastsUpdatedEventArgs> ChromeCastsUpdated;
 
         public Boolean IsMuted
         {
@@ -33,10 +35,7 @@
             set
             {
                 this._isMuted = value;
-                if (this._sender.GetChannel<IReceiverChannel>() != null)
-                {
-                    this._sender.GetChannel<IReceiverChannel>().SetIsMutedAsync(this._isMuted);
-                }
+                this._sender.GetChannel<IReceiverChannel>()?.SetIsMutedAsync(this._isMuted);
             }
         }
 
@@ -60,10 +59,7 @@
                     this._volume = value;
                 }
 
-                if (this._sender.GetChannel<IReceiverChannel>() != null)
-                {
-                    this._sender.GetChannel<IReceiverChannel>().SetVolumeAsync(this._volume == 0 ? 0 : this._volume / (Single)100);
-                }
+                this._sender.GetChannel<IReceiverChannel>()?.SetVolumeAsync(this._volume == 0 ? 0 : this._volume / (Single)100);
             }
         }
 
@@ -79,20 +75,6 @@
         public String PlayBackUrl { get; private set; }
 
         public Boolean IsContinuousSearchActive { get; private set; } = false;
-
-        #endregion
-
-        #region IChromeCastWrapper event handlers
-
-        public event EventHandler<ChromeCastConnectedEventArgs> ChromeCastConnected;
-
-        public event EventHandler<ChromeCastStatusUpdatedEventArgs> StatusChanged;
-
-        public event EventHandler<ChromeCastsUpdatedEventArgs> ChromeCastsUpdated;
-
-        #endregion
-
-        #region IChromeCastWrapper functions
 
         public async Task<Boolean> ReConnect()
         {
@@ -129,6 +111,7 @@
             {
                 return false;
             }
+
             return true;
         }
 
@@ -163,6 +146,7 @@
             {
                 return false;
             }
+
             return true;
         }
 
@@ -177,15 +161,14 @@
                 this.DisconnectEventHandlers();
                 this._sender.Disconnect();
             }
+
             return true;
         }
 
         public Boolean ActivateContinuousSearch()
         {
-            if (this._unsubscribeFindReceiversContinuous != null)
-            {
-                this._unsubscribeFindReceiversContinuous.Dispose();
-            }
+            this._unsubscribeFindReceiversContinuous?.Dispose();
+
             this._unsubscribeFindReceiversContinuous = new DeviceLocator().FindReceiversContinuous().Subscribe(this.OnNext);
             this.IsContinuousSearchActive = true;
             return true;
@@ -249,7 +232,7 @@
                     {
                         Title = "Loupedeck Chromecast Plugin",
                         Subtitle = url,
-                    }
+                    },
                 });
                 this.PlayBackUrl = url;
             }
@@ -263,10 +246,6 @@
 
         public async Task<Boolean> PauseCast()
         {
-            ////var recStatus = await this._sender.LaunchAsync(this._application.AppId);
-            ////var varStatus = await this._sender.GetChannel<IMediaChannel>().GetStatusAsync();
-            ////await this._sender.GetChannel<IMediaChannel>().PauseAsync();
-
             var mediaChannel = this._sender.GetChannel<IMediaChannel>();
             if (mediaChannel == null ||
                 this._selectedReceiver == null)
@@ -281,9 +260,6 @@
 
             return true;
         }
-        #endregion
-
-        #region Private functions
 
         private void GoogleCastWrapper_ReceiverStatusChanged(Object sender, EventArgs e)
         {
@@ -368,16 +344,15 @@
             }
         }
 
-        public void OnNext(IReceiver receiver)
+        private void OnNext(IReceiver receiver)
         {
             if (this._receivers == null)
             {
                 this._receivers = new List<IReceiver>();
             }
+
             this._receivers = this._receivers.Append(receiver);
             this.ChromeCastsUpdated?.Invoke(this, new ChromeCastsUpdatedEventArgs());
         }
-
-        #endregion
     }
 }
