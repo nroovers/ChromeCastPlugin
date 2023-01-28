@@ -12,14 +12,14 @@
 
         public TogglePlayDirectCommand()
         {
-            this.DisplayName = "Play Direct";
+            this.DisplayName = "Play Cast";
 
             this.ActionEditor.AddControl(
                 new ActionEditorTextbox(name: UrlControlName, labelText: "Url").SetRequired());
             this.ActionEditor.AddControl(
-                new ActionEditorCheckbox(name: IsPreSelectedControlName, labelText: "Preselect device?"));
+                new ActionEditorCheckbox(name: IsPreSelectedControlName, labelText: "Preselect chromecast?", description: "If checked, select a chromecast from the list below to always play from that device"));
             this.ActionEditor.AddControl(
-                new ActionEditorListbox(name: DeviceIdControlName, labelText: "Device"));
+                new ActionEditorListbox(name: DeviceIdControlName, labelText: "Chromecast"));
 
             this.ActionEditor.ListboxItemsRequested += this.ActionEditor_ListboxItemsRequested;
             this.ActionEditor.ControlValueChanged += this.ActionEditor_ControlValueChanged;
@@ -62,7 +62,7 @@
         private async void PlayPauseAsync(Parameters parameters)
         {
             if (parameters.IsPreselected &&
-                (this.ChromeCastWrapper.ConnectedChromeCast == null || this.ChromeCastWrapper.ConnectedChromeCast.Id != parameters.DeviceId))
+                (!this.ChromeCastWrapper.IsConnected || this.ChromeCastWrapper.ConnectedChromeCast.Id != parameters.DeviceId))
             {
                 await this.ChromeCastWrapper.Connect(parameters.DeviceId);
             }
@@ -72,11 +72,11 @@
                 if (this.ChromeCastWrapper.PlayBackUrl != parameters.Url ||
                     this.ChromeCastWrapper.PlayBackState != PlayBackState.Playing)
                 {
-                    this.ChromeCastWrapper.PlayCast(parameters.Url);
+                    await this.ChromeCastWrapper.PlayCast(parameters.Url);
                 }
                 else
                 {
-                    this.ChromeCastWrapper.PauseCast();
+                    await this.ChromeCastWrapper.PauseCast();
                 }
             }
             catch (Exception e)

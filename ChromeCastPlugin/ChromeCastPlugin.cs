@@ -6,16 +6,16 @@ namespace Loupedeck.ChromeCastPlugin
 
     public class ChromeCastPlugin : Plugin
     {
-        public override Boolean UsesApplicationApiOnly => true;
-
-        public override Boolean HasNoApplication => true;
-
-        internal readonly IChromeCastWrapper ChromeCastApi = new GoogleCastWrapper();
-
         public ChromeCastPlugin()
         {
             this.ChromeCastApi.ActivateContinuousSearch();
         }
+
+        public override Boolean UsesApplicationApiOnly => true;
+
+        public override Boolean HasNoApplication => true;
+
+        internal IChromeCastWrapper ChromeCastApi { get; } = new GoogleCastWrapper();
 
         public override void Load()
         {

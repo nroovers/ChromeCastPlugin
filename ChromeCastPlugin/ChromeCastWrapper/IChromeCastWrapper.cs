@@ -33,6 +33,8 @@
 
         ChromeCast ConnectedChromeCast { get; }
 
+        Boolean IsConnected { get; }
+
         Task<Boolean> SearchChromeCasts();
 
         Boolean ActivateContinuousSearch();

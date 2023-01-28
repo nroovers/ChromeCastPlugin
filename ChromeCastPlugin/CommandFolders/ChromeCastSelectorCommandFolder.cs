@@ -26,17 +26,26 @@
         public override Boolean Load()
         {
             this._isLoaded = this.ChromeCastWrapper.IsContinuousSearchActive;
+            return base.Load();
+        }
 
+        public override Boolean Activate()
+        {
             if (this.ChromeCastWrapper != null)
             {
                 this.ChromeCastWrapper.ChromeCastConnected += this.ChromeCastWrapper_ChromeCastConnected;
                 this.ChromeCastWrapper.ChromeCastsUpdated += this.ChromeCastWrapper_ChromeCastsUpdated;
             }
 
-            return base.Load();
+            if (!this._isLoaded)
+            {
+                this.LoadChromeCastRecievers();
+            }
+
+            return base.Activate();
         }
 
-        public override Boolean Unload()
+        public override Boolean Deactivate()
         {
             if (this.ChromeCastWrapper != null)
             {
@@ -44,18 +53,9 @@
                 this.ChromeCastWrapper.ChromeCastsUpdated -= this.ChromeCastWrapper_ChromeCastsUpdated;
             }
 
-            return base.Unload();
+            return base.Deactivate();
         }
 
-        public override Boolean Activate()
-        {
-            if (!this._isLoaded)
-            {
-                this.LoadChromeCastRecievers();
-            }
-
-            return true;
-        }
 
         public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _) => PluginDynamicFolderNavigation.ButtonArea;
 
@@ -78,7 +78,7 @@
         }
 
         public override String GetButtonDisplayName(PluginImageSize imageSize) =>
-            this.ChromeCastWrapper.ConnectedChromeCast != null
+            this.ChromeCastWrapper.IsConnected
             ? this.GetChromecastDisplayName(this.ChromeCastWrapper.ConnectedChromeCast) + " selected"
             : base.GetButtonDisplayName(imageSize);
 

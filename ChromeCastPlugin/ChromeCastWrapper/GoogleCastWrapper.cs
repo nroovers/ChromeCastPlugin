@@ -7,6 +7,7 @@
 
     using GoogleCast;
     using GoogleCast.Channels;
+    using GoogleCast.Messages;
     using GoogleCast.Models.Media;
     using GoogleCast.Models.Receiver;
 
@@ -18,6 +19,7 @@
         private Boolean _isMuted = false;
         private Int32 _volume = 50;
         private IDisposable _unsubscribeFindReceiversContinuous;
+        private Boolean _areEventhandlersConnected = false;
 
         public GoogleCastWrapper()
         {
@@ -68,7 +70,9 @@
             ? this._receivers.Select(receiver => this.ToChromeCast(receiver))
             : new List<ChromeCast>();
 
-        public ChromeCast ConnectedChromeCast => this._selectedReceiver != null ? this.ToChromeCast(this._selectedReceiver) : null;
+        public ChromeCast ConnectedChromeCast => this.IsConnected ? this.ToChromeCast(this._selectedReceiver) : null;
+
+        public Boolean IsConnected => this._selectedReceiver != null;
 
         public PlayBackState PlayBackState { get; private set; } = PlayBackState.Idle;
 
@@ -155,20 +159,14 @@
             this._selectedReceiver = null;
             this.PlayBackUrl = String.Empty;
             this.PlayBackState = PlayBackState.Idle;
-
-            if (this._sender != null)
-            {
-                this.DisconnectEventHandlers();
-                this._sender.Disconnect();
-            }
-
+            this.DisconnectEventHandlers();
+            this._sender?.Disconnect();
             return true;
         }
 
         public Boolean ActivateContinuousSearch()
         {
             this._unsubscribeFindReceiversContinuous?.Dispose();
-
             this._unsubscribeFindReceiversContinuous = new DeviceLocator().FindReceiversContinuous().Subscribe(this.OnNext);
             this.IsContinuousSearchActive = true;
             return true;
@@ -176,7 +174,7 @@
 
         public Boolean DeactivateContinuousSearch()
         {
-            this._unsubscribeFindReceiversContinuous.Dispose();
+            this._unsubscribeFindReceiversContinuous?.Dispose();
             this.IsContinuousSearchActive = false;
             return true;
         }
@@ -197,9 +195,6 @@
             }
 
             await this._sender.GetChannel<IReceiverChannel>().StopAsync();
-
-            this.PlayBackUrl = String.Empty;
-
             return true;
         }
 
@@ -207,7 +202,7 @@
         {
             if (String.IsNullOrEmpty(url))
             {
-                throw new ArgumentException("Argument not defined", "url");
+                throw new ArgumentException("Argument not set", "url");
             }
 
             var mediaChannel = this._sender.GetChannel<IMediaChannel>();
@@ -230,11 +225,10 @@
                     ContentId = url,
                     Metadata = new GenericMediaMetadata()
                     {
-                        Title = "Loupedeck Chromecast Plugin",
+                        Title = "Chromecast Plugin for Loupedeck",
                         Subtitle = url,
                     },
                 });
-                this.PlayBackUrl = url;
             }
             else if (this.PlayBackState != PlayBackState.Playing)
             {
@@ -293,7 +287,13 @@
             this._isMuted = status.Volume.IsMuted ?? false;
             this._volume = (Int32)(status.Volume.Level * 100);
 
-            this.StatusChanged?.Invoke(this, new ChromeCastStatusUpdatedEventArgs() { Volume = this._volume, IsMuted = this._isMuted });
+            this.StatusChanged?.Invoke(this, new ChromeCastStatusUpdatedEventArgs()
+            {
+                Volume = this.Volume,
+                IsMuted = this.IsMuted,
+                PlayBackUrl = this.PlayBackUrl,
+                PlayBackState = this.PlayBackState,
+            });
         }
 
         private void SetMediaStatus(MediaStatus status)
@@ -301,19 +301,28 @@
             if (status == null)
             {
                 this.PlayBackState = PlayBackState.Idle;
+                this.PlayBackUrl = String.Empty;
             }
             else if (status.PlayerState == "PLAYING")
             {
                 this.PlayBackState = PlayBackState.Playing;
+                if (status.Media != null)
+                {
+                    this.PlayBackUrl = status.Media.ContentId;
+                }
             }
             else if (status.PlayerState == "PAUSED")
             {
                 this.PlayBackState = PlayBackState.Paused;
             }
-            else
+
+            this.StatusChanged?.Invoke(this, new ChromeCastStatusUpdatedEventArgs()
             {
-                this.PlayBackState = PlayBackState.Idle;
-            }
+                Volume = this.Volume,
+                IsMuted = this.IsMuted,
+                PlayBackUrl = this.PlayBackUrl,
+                PlayBackState = this.PlayBackState,
+            });
         }
 
         private ChromeCast ToChromeCast(IReceiver receiver)
@@ -328,10 +337,11 @@
 
         private void ConnectEventHandlers()
         {
-            if (this._sender.GetChannel<IReceiverChannel>() != null)
+            if (this._sender.GetChannel<IReceiverChannel>() != null && !this._areEventhandlersConnected)
             {
                 this._sender.GetChannel<IReceiverChannel>().StatusChanged += this.GoogleCastWrapper_ReceiverStatusChanged;
                 this._sender.GetChannel<IMediaChannel>().StatusChanged += this.GoogleCastWrapper_MediaStatusChanged;
+                this._areEventhandlersConnected = true;
             }
         }
 
@@ -341,6 +351,7 @@
             {
                 this._sender.GetChannel<IReceiverChannel>().StatusChanged -= this.GoogleCastWrapper_ReceiverStatusChanged;
                 this._sender.GetChannel<IMediaChannel>().StatusChanged -= this.GoogleCastWrapper_MediaStatusChanged;
+                this._areEventhandlersConnected = false;
             }
         }
 

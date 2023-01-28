@@ -8,7 +8,7 @@
     {
         public VolumeAdjustment()
             : base(
-                "CCast volume",
+                "Chromecast Volume",
                 "Adjust chromecast volume level",
                 String.Empty,
                 true)
@@ -50,7 +50,7 @@
 
             try
             {
-                this.ChromeCastWrapper.Volume += ticks; // increase or decrease counter on the number of ticks
+                this.ChromeCastWrapper.Volume += ticks;
                 this.ActionImageChanged(actionParameter);
             }
             catch (Exception e)
@@ -77,10 +77,13 @@
             }
         }
 
+
+        protected override BitmapImage GetAdjustmentImage(String actionParameter, PluginImageSize imageSize) => EmbeddedResources.ReadImage($"Loupedeck.ChromeCastPlugin.Resources.Icons.chromecast{(this.ChromeCastWrapper.IsConnected ? "-filled" : String.Empty)}-button-60x60.png");
+
         protected override String GetAdjustmentValue(String actionParameter)
         {
             if (this.ChromeCastWrapper == null ||
-                this.ChromeCastWrapper.ConnectedChromeCast == null)
+                !this.ChromeCastWrapper.IsConnected)
             {
                 return "?";
             }

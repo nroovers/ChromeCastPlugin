@@ -1,7 +1,7 @@
 ﻿namespace Loupedeck.ChromeCastPlugin.Common
 {
-    public class Theme
+    internal class Theme
     {
-        public static BitmapColor PrimaryColor = new BitmapColor(0xFF800080);
+        public static BitmapColor PrimaryColor { get; } = new BitmapColor(0xFF0000C8);
     }
 }

@@ -96,15 +96,13 @@
     <Compile Include="Adjustments\VolumeAdjustment.cs" />
     <Compile Include="ChromeCastWrapper\ChromeCast.cs" />
     <Compile Include="ChromeCastWrapper\ChromeCastConnectedEventArgs.cs" />
-    <Compile Include="ChromeCastWrapper\ChromeCastsUpdatedEventArgs.cs" />
     <Compile Include="ChromeCastWrapper\ChromeCastStatusUpdatedEventArgs.cs" />
-    <Compile Include="ChromeCastWrapper\GoogleCastFindReceiversContinousObserver.cs" />
+    <Compile Include="ChromeCastWrapper\ChromeCastsUpdatedEventArgs.cs" />
     <Compile Include="ChromeCastWrapper\GoogleCastWrapper.cs" />
     <Compile Include="ChromeCastWrapper\IChromeCastWrapper.cs" />
     <Compile Include="CommandFolders\ChromeCastSelectorCommandFolder.cs" />
     <Compile Include="Commands\StopCastCommand.cs" />
     <Compile Include="Commands\TogglePlayDirectCommand.cs" />
-    <Compile Include="Commands\TogglePlayCommand.cs" />
     <Compile Include="Common\Theme.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ChromeCastApplication.cs" />
@@ -123,14 +121,15 @@
     <EmbeddedResource Include="Resources\PackageMetadata\Icon256x256.png" />
     <EmbeddedResource Include="Resources\PackageMetadata\Icon32x32.png" />
     <EmbeddedResource Include="Resources\PackageMetadata\Icon48x48.png" />
-    <EmbeddedResource Include="Resources\Icons\loading_90x90.gif" />
     <EmbeddedResource Include="Resources\Icons\loupedeck_icon_300x300.png" />
-    <EmbeddedResource Include="Resources\Icons\selected_receiver.png" />
-    <EmbeddedResource Include="Resources\Icons\unselected_receiver.png" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Icons\chromecast-button-60x60.png" />
+    <EmbeddedResource Include="Resources\Icons\chromecast-filled-button-60x60.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

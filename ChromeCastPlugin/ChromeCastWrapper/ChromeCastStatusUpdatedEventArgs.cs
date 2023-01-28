@@ -2,10 +2,14 @@
 {
     using System;
 
-    public class ChromeCastStatusUpdatedEventArgs
+    internal class ChromeCastStatusUpdatedEventArgs
     {
-        internal Int32 Volume { get; set; }
+        public Int32 Volume { get; set; }
 
-        internal Boolean IsMuted { get; set; }
+        public Boolean IsMuted { get; set; }
+
+        public PlayBackState PlayBackState { get; set; }
+
+        public String PlayBackUrl { get; set; }
     }
 }
