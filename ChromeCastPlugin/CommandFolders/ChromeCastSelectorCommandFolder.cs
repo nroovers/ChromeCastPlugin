@@ -56,7 +56,6 @@
             return base.Deactivate();
         }
 
-
         public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _) => PluginDynamicFolderNavigation.ButtonArea;
 
         public override IEnumerable<String> GetButtonPressActionNames(DeviceType _)
@@ -78,9 +77,9 @@
         }
 
         public override String GetButtonDisplayName(PluginImageSize imageSize) =>
-            this.ChromeCastWrapper.IsConnected
-            ? this.GetChromecastDisplayName(this.ChromeCastWrapper.ConnectedChromeCast) + " selected"
-            : base.GetButtonDisplayName(imageSize);
+           this.ChromeCastWrapper.IsConnected
+           ? this.GetChromecastDisplayName(this.ChromeCastWrapper.ConnectedChromeCast) + " selected"
+           : base.GetButtonDisplayName(imageSize);
 
         public override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {

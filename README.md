@@ -16,10 +16,10 @@ To install the package file:
 
 From the Loupedeck software you can map following actions to your Loupedeck device:
 
-- **Select device** - to connect to a Chromecast
-- **CCast Volume** - to control the volume of the selected Chromecast
-- **Play** - to play a stream which is available via a URL
-- **Stop cast** - to stop an ongoing cast
+- **Select Chromecast** - to connect to a Chromecast
+- **Chromecast Volume** - to control the volume of the selected Chromecast
+- **Play Cast** - to play online media which is available via a public URL
+- **Stop Cast** - to stop an ongoing cast
 
 ## Building and debugging
 
@@ -42,9 +42,9 @@ In case Loupedeck doesn't start on debug, ensure that it is configured correctly
 Pull requests are welcome. For major changes, please open an issue first
 to discuss what you would like to change.
 
-## License
+<!-- ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](https://choosealicense.com/licenses/mit/) -->
 
 ## More info
 

@@ -10,7 +10,7 @@
             : base(
             "Stop Cast",
             "Stop the current ongoing cast",
-            string.Empty)
+            String.Empty)
         {
         }
 

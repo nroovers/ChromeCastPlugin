@@ -29,10 +29,7 @@ namespace Loupedeck.ChromeCastPlugin
                 this.ChromeCastApi.ActivateContinuousSearch();
             }
 
-            if (this.ChromeCastApi.ConnectedChromeCast != null)
-            {
-                this.ChromeCastApi.ReConnect();
-            }
+            this.ChromeCastApi.Reconnect();
         }
 
         public override void Unload()

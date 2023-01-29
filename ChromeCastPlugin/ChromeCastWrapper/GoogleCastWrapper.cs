@@ -80,90 +80,6 @@
 
         public Boolean IsContinuousSearchActive { get; private set; } = false;
 
-        public async Task<Boolean> ReConnect()
-        {
-            try
-            {
-                if (this._selectedReceiver == null)
-                {
-                    return true;
-                }
-
-                if (this._receivers == null || this._receivers.Count() == 0)
-                {
-                    await this.SearchChromeCasts();
-                }
-
-                if (this._receivers.FirstOrDefault(r => r.Id == this._selectedReceiver.Id) == null)
-                {
-                    this._selectedReceiver = null;
-                    this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs());
-                    return true;
-                }
-
-                await this._sender.ConnectAsync(this._selectedReceiver);
-
-                var status = await this._sender.GetChannel<IReceiverChannel>().GetStatusAsync();
-
-                this.SetReceiverStatus(status);
-
-                this.ConnectEventHandlers();
-
-                this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCastId = this._selectedReceiver.Id });
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public async Task<Boolean> Connect(String chromeCastId)
-        {
-            if (String.IsNullOrEmpty(chromeCastId))
-            {
-                return false;
-            }
-
-            try
-            {
-                var receiver = this._receivers.FirstOrDefault(r => r.Id == chromeCastId);
-
-                if (receiver != null &&
-                    this._selectedReceiver?.Id != receiver.Id)
-                {
-                    this._selectedReceiver = receiver;
-
-                    await this._sender.ConnectAsync(this._selectedReceiver);
-
-                    var status = await this._sender.GetChannel<IReceiverChannel>().GetStatusAsync();
-
-                    this.SetReceiverStatus(status);
-
-                    this.ConnectEventHandlers();
-
-                    this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCastId = chromeCastId });
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public Boolean Disconnect()
-        {
-            this._selectedReceiver = null;
-            this.PlayBackUrl = String.Empty;
-            this.PlayBackState = PlayBackState.Idle;
-            this.DisconnectEventHandlers();
-            this._sender?.Disconnect();
-            return true;
-        }
-
         public Boolean ActivateContinuousSearch()
         {
             this._unsubscribeFindReceiversContinuous?.Dispose();
@@ -186,15 +102,78 @@
             return true;
         }
 
-        public async Task<Boolean> StopCast()
+        public async Task<Boolean> Connect(String chromeCastId)
         {
-            if (this._sender.GetChannel<IReceiverChannel>() == null ||
-                this._selectedReceiver == null)
+            if (String.IsNullOrEmpty(chromeCastId))
             {
-                return false;
+                throw new ArgumentNullException("chromeCastId", "Parameter 'chromeCastId' cannot be null or empty");
             }
 
-            await this._sender.GetChannel<IReceiverChannel>().StopAsync();
+            var receiver = this._receivers.FirstOrDefault(r => r.Id == chromeCastId);
+
+            if (receiver == null)
+            {
+                throw new ArgumentException($"Chromecast with id {chromeCastId} not found", "chromeCastId");
+            }
+
+            if (this._selectedReceiver?.Id == receiver.Id)
+            {
+                return true;
+            }
+
+            this._selectedReceiver = receiver;
+
+            await this._sender.ConnectAsync(this._selectedReceiver);
+
+            var status = await this._sender.GetChannel<IReceiverChannel>().GetStatusAsync();
+            this.SetReceiverStatus(status);
+
+            this.ConnectEventHandlers();
+
+            this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCastId = chromeCastId });
+
+            return true;
+        }
+
+
+        public async Task<Boolean> Reconnect()
+        {
+            if (this._selectedReceiver == null)
+            {
+                return true;
+            }
+
+            if (this._receivers == null || this._receivers.Count() == 0)
+            {
+                await this.SearchChromeCasts();
+            }
+
+            if (this._receivers.FirstOrDefault(r => r.Id == this._selectedReceiver.Id) == null)
+            {
+                this._selectedReceiver = null;
+                this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs());
+                return true;
+            }
+
+            await this._sender.ConnectAsync(this._selectedReceiver);
+
+            var status = await this._sender.GetChannel<IReceiverChannel>().GetStatusAsync();
+            this.SetReceiverStatus(status);
+
+            this.ConnectEventHandlers();
+
+            this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCastId = this._selectedReceiver.Id });
+
+            return true;
+        }
+
+        public Boolean Disconnect()
+        {
+            this._selectedReceiver = null;
+            this.PlayBackUrl = String.Empty;
+            this.PlayBackState = PlayBackState.Idle;
+            this.DisconnectEventHandlers();
+            this._sender.Disconnect();
             return true;
         }
 
@@ -214,7 +193,6 @@
 
             if (this.PlayBackState == PlayBackState.Idle)
             {
-                // TODO: find a way to avoid calling this method when playing after stopping cast
                 await this._sender.LaunchAsync(mediaChannel);
             }
 
@@ -252,6 +230,18 @@
                 await mediaChannel.PauseAsync();
             }
 
+            return true;
+        }
+
+        public async Task<Boolean> StopCast()
+        {
+            if (this._sender.GetChannel<IReceiverChannel>() == null ||
+                this._selectedReceiver == null)
+            {
+                return false;
+            }
+
+            await this._sender.GetChannel<IReceiverChannel>().StopAsync();
             return true;
         }
 

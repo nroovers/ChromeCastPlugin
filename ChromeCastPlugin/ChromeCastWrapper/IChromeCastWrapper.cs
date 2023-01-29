@@ -35,15 +35,15 @@
 
         Boolean IsConnected { get; }
 
-        Task<Boolean> SearchChromeCasts();
-
         Boolean ActivateContinuousSearch();
 
         Boolean DeactivateContinuousSearch();
 
-        Task<Boolean> ReConnect();
+        Task<Boolean> SearchChromeCasts();
 
         Task<Boolean> Connect(String chromeCastId);
+
+        Task<Boolean> Reconnect();
 
         Boolean Disconnect();
 

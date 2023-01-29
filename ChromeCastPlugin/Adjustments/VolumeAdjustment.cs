@@ -77,7 +77,6 @@
             }
         }
 
-
         protected override BitmapImage GetAdjustmentImage(String actionParameter, PluginImageSize imageSize) => EmbeddedResources.ReadImage($"Loupedeck.ChromeCastPlugin.Resources.Icons.chromecast{(this.ChromeCastWrapper.IsConnected ? "-filled" : String.Empty)}-button-60x60.png");
 
         protected override String GetAdjustmentValue(String actionParameter)

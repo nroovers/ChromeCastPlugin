@@ -8,7 +8,7 @@
     {
         private const String UrlControlName = "url";
         private const String IsPreSelectedControlName = "pre-selected";
-        private const String DeviceIdControlName = "deviceId";
+        private const String DeviceControlName = "device";
 
         public TogglePlayDirectCommand()
         {
@@ -17,9 +17,12 @@
             this.ActionEditor.AddControl(
                 new ActionEditorTextbox(name: UrlControlName, labelText: "Url").SetRequired());
             this.ActionEditor.AddControl(
-                new ActionEditorCheckbox(name: IsPreSelectedControlName, labelText: "Preselect chromecast?", description: "If checked, select a chromecast from the list below to always play from that device"));
+                new ActionEditorCheckbox(
+                    name: IsPreSelectedControlName,
+                    labelText: "Preselect chromecast?",
+                    description: "If checked, select a chromecast from the list below to play cast from that device"));
             this.ActionEditor.AddControl(
-                new ActionEditorListbox(name: DeviceIdControlName, labelText: "Chromecast"));
+                new ActionEditorListbox(name: DeviceControlName, labelText: "Chromecast"));
 
             this.ActionEditor.ListboxItemsRequested += this.ActionEditor_ListboxItemsRequested;
             this.ActionEditor.ControlValueChanged += this.ActionEditor_ControlValueChanged;
@@ -54,21 +57,21 @@
             {
                 Url = actionParameters.GetString(UrlControlName),
                 IsPreselected = actionParameters.GetBoolean(IsPreSelectedControlName),
-                DeviceId = actionParameters.GetString(DeviceIdControlName),
+                Device = actionParameters.GetString(DeviceControlName),
             });
             return true;
         }
 
         private async void PlayPauseAsync(Parameters parameters)
         {
-            if (parameters.IsPreselected &&
-                (!this.ChromeCastWrapper.IsConnected || this.ChromeCastWrapper.ConnectedChromeCast.Id != parameters.DeviceId))
-            {
-                await this.ChromeCastWrapper.Connect(parameters.DeviceId);
-            }
-
             try
             {
+                if (parameters.IsPreselected &&
+                    (!this.ChromeCastWrapper.IsConnected || this.ChromeCastWrapper.ConnectedChromeCast.Id != parameters.Device))
+                {
+                    await this.ChromeCastWrapper.Connect(parameters.Device);
+                }
+
                 if (this.ChromeCastWrapper.PlayBackUrl != parameters.Url ||
                     this.ChromeCastWrapper.PlayBackState != PlayBackState.Playing)
                 {
@@ -85,22 +88,19 @@
             }
         }
 
-        private void ChromeCastWrapper_ChromeCastsUpdated(Object _, ChromeCastsUpdatedEventArgs e) => this.ActionEditor.ListboxItemsChanged(DeviceIdControlName);
+        private void ChromeCastWrapper_ChromeCastsUpdated(Object _, ChromeCastsUpdatedEventArgs e) => this.ActionEditor.ListboxItemsChanged(DeviceControlName);
 
         private void ActionEditor_ControlValueChanged(Object _, ActionEditorControlValueChangedEventArgs e)
         {
-            if (e.ControlName.EqualsNoCase(IsPreSelectedControlName))
-            {
-                if (e.ActionEditorState.GetControlValue(IsPreSelectedControlName) == "true")
-                {
-                    this.ActionEditor.ListboxItemsChanged(DeviceIdControlName);
-                }
-            }
+            var isDeviceControlValid = !(e.ActionEditorState.GetControlValue(IsPreSelectedControlName) == "true" &&
+                String.IsNullOrEmpty(e.ActionEditorState.GetControlValue(DeviceControlName)));
+
+            e.ActionEditorState.SetValidity(DeviceControlName, isDeviceControlValid, "Please select a chromecast");
         }
 
         private void ActionEditor_ListboxItemsRequested(Object _, ActionEditorListboxItemsRequestedEventArgs e)
         {
-            if (e.ControlName.EqualsNoCase(DeviceIdControlName))
+            if (e.ControlName.EqualsNoCase(DeviceControlName))
             {
                 foreach (var chromeCast in this.ChromeCastWrapper.ChromeCasts)
                 {
@@ -115,7 +115,7 @@
 
             public Boolean IsPreselected { get; set; }
 
-            public String DeviceId { get; set; }
+            public String Device { get; set; }
         }
     }
 }
