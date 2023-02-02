@@ -28,14 +28,16 @@ namespace Loupedeck.ChromeCastPlugin
             {
                 this.ChromeCastApi.ActivateContinuousSearch();
             }
-
-            this.ChromeCastApi.Reconnect();
         }
 
         public override void Unload()
         {
             this.ChromeCastApi.DeactivateContinuousSearch();
-            this.ChromeCastApi.Disconnect();
+
+            if (this.ChromeCastApi.IsConnected)
+            {
+                this.ChromeCastApi.Disconnect();
+            }
         }
 
         public override void RunCommand(String commandName, String parameter)

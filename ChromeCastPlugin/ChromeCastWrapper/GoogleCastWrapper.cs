@@ -122,8 +122,7 @@
             }
 
             this._selectedReceiver = receiver;
-
-            await this._sender.ConnectAsync(this._selectedReceiver);
+            await this._sender.ConnectAsync(receiver);
 
             var status = await this._sender.GetChannel<IReceiverChannel>().GetStatusAsync();
             this.SetReceiverStatus(status);
@@ -134,7 +133,6 @@
 
             return true;
         }
-
 
         public async Task<Boolean> Reconnect()
         {
