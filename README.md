@@ -16,7 +16,7 @@ To install the package file:
 
 From the Loupedeck software you can map following actions to your Loupedeck device:
 
-- **Select Chromecast** - to connect to a Chromecast
+- **Connect to Chromecast** - view the list of available chromecasts and connect to one
 - **Chromecast Volume** - to control the volume of the selected Chromecast
 - **Play Cast** - to play online media which is available via a public URL
 - **Stop Cast** - to stop an ongoing cast
