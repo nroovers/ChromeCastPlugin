@@ -13,6 +13,7 @@
         public TogglePlayDirectCommand()
         {
             this.DisplayName = "Play Cast";
+            this.Description = "Play and pause online media";
 
             this.ActionEditor.AddControl(
                 new ActionEditorTextbox(name: UrlControlName, labelText: "Url").SetRequired());
