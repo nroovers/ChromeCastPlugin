@@ -1,6 +1,6 @@
 ﻿type: plugin4
-name: ChromeCast
-displayName: ChromeCast
+name: Chromecast
+displayName: Chromecast
 version: 1.0.0
 author: Nicolai Roovers
 copyright: Copyright, 2023, Nicolai Roovers
