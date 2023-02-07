@@ -77,7 +77,10 @@
             }
         }
 
-        protected override BitmapImage GetAdjustmentImage(String actionParameter, PluginImageSize imageSize) => EmbeddedResources.ReadImage($"Loupedeck.ChromeCastPlugin.Resources.Icons.chromecast{(this.ChromeCastWrapper.IsConnected ? "-filled" : String.Empty)}-button-60x60.png");
+        protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize) =>
+            imageSize == PluginImageSize.Width60 ? "Ccast Volume" : base.GetCommandDisplayName(actionParameter, imageSize);
+
+        protected override BitmapImage GetAdjustmentImage(String actionParameter, PluginImageSize imageSize) => this.GetImage();
 
         protected override String GetAdjustmentValue(String actionParameter)
         {
@@ -98,5 +101,10 @@
         private void ChromeCastWrapper_ChromeCastConnected(Object sender, ChromeCastWrapper.ChromeCastConnectedEventArgs e) => this.ActionImageChanged();
 
         private void ChromeCastWrapper_StatusChanged(Object sender, ChromeCastWrapper.ChromeCastStatusUpdatedEventArgs e) => this.ActionImageChanged();
+
+        private BitmapImage GetImage() =>
+            EmbeddedResources.ReadImage($"Loupedeck.ChromeCastPlugin.Resources.Icons.chromecast{(this.ChromeCastWrapper.IsConnected ? "-filled" : String.Empty)}-button-60x60.png");
+
+
     }
 }

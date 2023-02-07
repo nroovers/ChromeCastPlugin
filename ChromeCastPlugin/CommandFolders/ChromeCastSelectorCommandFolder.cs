@@ -15,7 +15,7 @@
 
         public ChromeCastSelectorCommandFolder()
         {
-            this.DisplayName = "Connect to Chromecast";
+            this.DisplayName = "Select Chromecast";
             this.GroupName = "Devices";
             this.Description = "View available chromecasts and connect to the selected one";
         }
