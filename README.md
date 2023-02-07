@@ -4,7 +4,7 @@ The ChromeCastPlugin is a Loupedeck plugin that allows you to control your Googl
 
 ## Installation
 
-Get the plugin package by either building it or downloading it from ...
+Get the plugin package by either building it or downloading the [release](https://github.com/nroovers/ChromeCastPlugin/releases)
 
 To install the package file:
 
@@ -16,7 +16,7 @@ To install the package file:
 
 From the Loupedeck software you can map following actions to your Loupedeck device:
 
-- **Connect to Chromecast** - view the list of available chromecasts and connect to one
+- **Select Chromecast** - view the list of available chromecasts and connect to one
 - **Chromecast Volume** - to control the volume of the selected Chromecast
 - **Play Cast** - to play online media which is available via a public URL
 - **Stop Cast** - to stop an ongoing cast
