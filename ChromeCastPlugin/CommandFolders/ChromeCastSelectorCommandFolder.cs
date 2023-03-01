@@ -20,7 +20,7 @@
             this.Description = "View available chromecasts and connect to the selected one";
         }
 
-        private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
+        private Chromecast ChromeCastPlugin => this.Plugin as Chromecast;
 
         private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
 

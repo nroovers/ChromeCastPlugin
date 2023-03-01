@@ -29,7 +29,7 @@
             this.ActionEditor.ControlValueChanged += this.ActionEditor_ControlValueChanged;
         }
 
-        private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
+        private Chromecast ChromeCastPlugin => this.Plugin as Chromecast;
 
         private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
 

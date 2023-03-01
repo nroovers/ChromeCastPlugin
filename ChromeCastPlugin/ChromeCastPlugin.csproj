@@ -106,7 +106,7 @@
     <Compile Include="Common\Theme.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ChromeCastApplication.cs" />
-    <Compile Include="ChromeCastPlugin.cs" />
+    <Compile Include="Chromecast.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="PluginConfiguration.json" />
@@ -142,8 +142,8 @@
       <MetaDataFiles Include="$(ProjectDir)Resources\PackageMetadata\*.*" />
     </ItemGroup>
     <PropertyGroup>
-      <PluginPath>$([System.Environment]::GetFolderPath(SpecialFolder.LocalApplicationData))\Loupedeck\Plugins\ChromeCast\</PluginPath>
-      <PackageFilePath>$(OutputPath)package\ChromeCast.lplug4</PackageFilePath>
+      <PluginPath>$([System.Environment]::GetFolderPath(SpecialFolder.LocalApplicationData))\Loupedeck\Plugins\Chromecast\</PluginPath>
+      <PackageFilePath>$(OutputPath)package\Chromecast.lplug4</PackageFilePath>
       <PluginPackageToolPath>"C:\Program Files (x86)\Loupedeck\LoupedeckPluginTool\LoupedeckPluginTool.exe"</PluginPackageToolPath>
     </PropertyGroup>
     <RemoveDir Directories="$(PluginPath)" />

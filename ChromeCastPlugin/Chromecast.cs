@@ -4,9 +4,9 @@ namespace Loupedeck.ChromeCastPlugin
 
     using Loupedeck.ChromeCastPlugin.ChromeCastWrapper;
 
-    public class ChromeCastPlugin : Plugin
+    public class Chromecast : Plugin
     {
-        public ChromeCastPlugin()
+        public Chromecast()
         {
             this.ChromeCastApi.ActivateContinuousSearch();
         }
