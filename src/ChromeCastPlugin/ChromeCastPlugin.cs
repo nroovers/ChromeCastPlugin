@@ -4,19 +4,30 @@ namespace Loupedeck.ChromeCastPlugin
 
     using Loupedeck.ChromeCastPlugin.ChromeCastWrapper;
 
-    public class Chromecast : Plugin
-    {
-        public Chromecast()
-        {
-            this.ChromeCastApi.ActivateContinuousSearch();
-        }
+    // This class contains the plugin-level logic of the Loupedeck plugin.
 
+    public class ChromeCastPlugin : Plugin
+    {
+        // Gets a value indicating whether this is an API-only plugin.
         public override Boolean UsesApplicationApiOnly => true;
 
+        // Gets a value indicating whether this is a Universal plugin or an Application plugin.
         public override Boolean HasNoApplication => true;
 
         internal IChromeCastWrapper ChromeCastApi { get; } = new GoogleCastWrapper();
 
+
+        // Initializes a new instance of the plugin class.
+        public ChromeCastPlugin()
+        {
+            // Initialize the plugin log.
+            PluginLog.Init(this.Log);
+
+            // Initialize the plugin resources.
+            PluginResources.Init(this.Assembly);
+        }
+
+        // This method is called when the plugin is loaded.
         public override void Load()
         {
             this.Info.Icon16x16 = EmbeddedResources.ReadImage("Loupedeck.ChromeCastPlugin.Resources.PackageMetadata.Icon16x16.png");
@@ -30,6 +41,7 @@ namespace Loupedeck.ChromeCastPlugin
             }
         }
 
+        // This method is called when the plugin is unloaded.
         public override void Unload()
         {
             this.ChromeCastApi.DeactivateContinuousSearch();
@@ -40,25 +52,7 @@ namespace Loupedeck.ChromeCastPlugin
             }
         }
 
-        public override void RunCommand(String commandName, String parameter)
-        {
-        }
+        internal void HandleError(String msg, Exception e) => Tracer.Error(msg, e);
 
-        public override void ApplyAdjustment(String adjustmentName, String parameter, Int32 diff)
-        {
-        }
-
-        internal void HandleError(String msg, Exception e)
-        {
-            Tracer.Error(msg, e);
-        }
-
-        private void OnApplicationStarted(Object sender, EventArgs e)
-        {
-        }
-
-        private void OnApplicationStopped(Object sender, EventArgs e)
-        {
-        }
     }
 }

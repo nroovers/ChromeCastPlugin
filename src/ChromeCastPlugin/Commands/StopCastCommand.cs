@@ -14,7 +14,7 @@
         {
         }
 
-        private Chromecast ChromeCastPlugin => this.Plugin as Chromecast;
+        private ChromeCastPlugin ChromeCastPlugin => this.Plugin as ChromeCastPlugin;
 
         private IChromeCastWrapper ChromeCastWrapper => this.ChromeCastPlugin.ChromeCastApi;
 

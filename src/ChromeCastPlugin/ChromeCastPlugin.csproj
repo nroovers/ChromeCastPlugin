@@ -1,0 +1,77 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <RootNamespace>Loupedeck.ChromeCastPlugin</RootNamespace>
+
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <PluginApiDir Condition="$(OS) == 'Windows_NT'">C:\Program Files\Logi\LogiPluginService\</PluginApiDir>
+    <PluginApiDir Condition="$(OS) != 'Windows_NT'">/Applications/Utilities/LogiPluginService.app/Contents/MonoBundle/</PluginApiDir>
+
+    <PluginDir Condition="$(OS) == 'Windows_NT'">$(LocalAppData)\Logi\LogiPluginService\Plugins\</PluginDir>
+    <PluginDir Condition="$(OS) != 'Windows_NT'">~/Library/Application\ Support/Logi/LogiPluginService/Plugins/</PluginDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="metadata\Icon256x256.png" />
+    <None Remove="Resources\Icons\chromecast-button-60x60.png" />
+    <None Remove="Resources\Icons\chromecast-filled-button-60x60.png" />
+    <None Remove="Resources\Icons\loupedeck_icon_300x300.png" />
+    <None Remove="Resources\PackageMetadata\Icon16x16.png" />
+    <None Remove="Resources\PackageMetadata\Icon256x256.png" />
+    <None Remove="Resources\PackageMetadata\Icon32x32.png" />
+    <None Remove="Resources\PackageMetadata\Icon48x48.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="metadata\Icon256x256.png" />
+    <EmbeddedResource Include="Resources\Icons\chromecast-button-60x60.png" />
+    <EmbeddedResource Include="Resources\Icons\chromecast-filled-button-60x60.png" />
+    <EmbeddedResource Include="Resources\Icons\loupedeck_icon_300x300.png" />
+    <EmbeddedResource Include="Resources\PackageMetadata\Icon16x16.png" />
+    <EmbeddedResource Include="Resources\PackageMetadata\Icon256x256.png" />
+    <EmbeddedResource Include="Resources\PackageMetadata\Icon32x32.png" />
+    <EmbeddedResource Include="Resources\PackageMetadata\Icon48x48.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GoogleCast" Version="1.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PluginApi">
+      <HintPath>$(PluginApiDir)PluginApi.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Condition="$(OS) == 'Windows_NT'" Command="echo $(OutputPath) &gt; &quot;$(PluginDir)$(ProjectName).link&quot;" />
+    <Exec Condition="$(OS) != 'Windows_NT'" Command="echo $(OutputPath) &gt; $(PluginDir)$(ProjectName).link" />
+  </Target>
+
+  <Target Name="CopyMetadata" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <MetadataFiles Include="metadata\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MetadataFiles)" DestinationFolder="$(OutputPath)metadata" />
+  </Target>
+
+  <Target Name="PluginClean" AfterTargets="CoreClean">
+    <Delete Condition="$(OS) == 'Windows_NT'" Files="$(PluginDir)$(ProjectName).link" />
+    <Exec Condition="$(OS) != 'Windows_NT'" Command="rm -f $(PluginDir)$(ProjectName).link" />
+
+    <RemoveDir Directories="$(OutputPath)metadata" />
+  </Target>
+
+</Project>
