@@ -78,7 +78,7 @@
         }
 
         protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize) =>
-            imageSize == PluginImageSize.Width60 ? "Ccast Volume" : "Chromecast Volume";
+            imageSize == PluginImageSize.Width60 ? "CC Vol." : "Chromecast Volume";
 
         protected override String GetAdjustmentValue(String actionParameter)
         {

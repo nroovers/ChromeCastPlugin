@@ -11,6 +11,7 @@
     {
         private readonly String _loadingCommand = "Searching...";
         private readonly String _notFoundCommand = "Chromecast not found";
+        private readonly String _refreshCommand = "Refresh";
         private Boolean _isLoaded;
 
         public ChromeCastSelectorCommandFolder()
@@ -73,7 +74,8 @@
             {
                 return this.ChromeCastWrapper.ChromeCasts
                     .OrderBy(chromeCast => chromeCast.Name)
-                    .Select(chromeCast => this.CreateCommandName(chromeCast.Id));
+                    .Select(chromeCast => this.CreateCommandName(chromeCast.Id))
+                    .Append(this.CreateCommandName(this._refreshCommand));
             }
         }
 
@@ -94,7 +96,8 @@
                     bitmapBuilder.DrawLine(0, 75, 90, 75, Theme.PrimaryColor, 5);
                 }
                 else if (actionParameter == this._notFoundCommand ||
-                    actionParameter == this._loadingCommand)
+                    actionParameter == this._loadingCommand ||
+                    actionParameter == this._refreshCommand)
                 {
                     bitmapBuilder.DrawText(actionParameter, BitmapColor.White);
                 }
@@ -114,7 +117,7 @@
                 return;
             }
 
-            if (commandParameter == this._notFoundCommand)
+            if (commandParameter == this._notFoundCommand || commandParameter == this._refreshCommand)
             {
                 this._isLoaded = false;
                 this.ButtonActionNamesChanged();
