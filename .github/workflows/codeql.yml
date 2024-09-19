@@ -62,6 +62,11 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
+        
+    - name: Install Loupedeck
+      run: |
+        echo Installing application
+        ./tools/LoupedeckInstaller_6.0.0.20509.exe /exenoui
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
