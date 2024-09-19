@@ -62,11 +62,16 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
-        
+
+    - name: Download Loupedeck
+      run: |
+        echo Downloading loupedeck
+        Invoke-WebRequest -Uri "https://support.loupedeck.com/hubfs/SDK_Beta_6.0/LoupedeckInstaller_6.0.0.20509.exe" -OutFile "loupedeck.exe"
+
     - name: Install Loupedeck
       run: |
         echo Installing application
-        ./tools/LoupedeckInstaller_6.0.0.20509.exe /exenoui
+        ./loupedeck.exe /exenoui
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
