@@ -44,11 +44,21 @@ namespace Loupedeck.ChromeCastPlugin
         // This method is called when the plugin is unloaded.
         public override void Unload()
         {
-            this.ChromeCastApi.DeactivateContinuousSearch();
-
-            if (this.ChromeCastApi.IsConnected)
+            try
             {
-                this.ChromeCastApi.Disconnect();
+                if (this.ChromeCastApi.IsContinuousSearchActive)
+                {
+                    this.ChromeCastApi.DeactivateContinuousSearch();
+                }
+
+                if (this.ChromeCastApi.IsConnected)
+                {
+                    this.ChromeCastApi.Disconnect();
+                }
+            }
+            catch (Exception e)
+            {
+                this.HandleError("Plugin unload cleanup failed", e);
             }
         }
 

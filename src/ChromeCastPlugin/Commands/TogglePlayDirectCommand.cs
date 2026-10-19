@@ -1,6 +1,7 @@
 ﻿namespace Loupedeck.ChromeCastPlugin.Commands
 {
     using System;
+    using System.Threading.Tasks;
 
     using Loupedeck.ChromeCastPlugin.ChromeCastWrapper;
 
@@ -59,11 +60,11 @@
                 Url = actionParameters.GetString(UrlControlName),
                 IsPreselected = actionParameters.GetBoolean(IsPreSelectedControlName),
                 Device = actionParameters.GetString(DeviceControlName),
-            });
+            }).GetAwaiter().GetResult();
             return true;
         }
 
-        private async void PlayPauseAsync(Parameters parameters)
+        private async Task PlayPauseAsync(Parameters parameters)
         {
             try
             {

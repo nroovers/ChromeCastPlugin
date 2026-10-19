@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using Loupedeck.ChromeCastPlugin.ChromeCastWrapper;
     using Loupedeck.ChromeCastPlugin.Common;
@@ -41,7 +42,7 @@
 
             if (!this._isLoaded)
             {
-                this.LoadChromeCastRecievers();
+                _ = this.LoadChromeCastRecieversAsync();
             }
 
             return base.Activate();
@@ -129,7 +130,7 @@
             {
                 this._isLoaded = false;
                 this.ButtonActionNamesChanged();
-                this.LoadChromeCastRecievers();
+                _ = this.LoadChromeCastRecieversAsync();
                 return;
             }
 
@@ -141,7 +142,7 @@
 
                 if (selectedChromeCast != null)
                 {
-                    this.ChromeCastWrapper.Connect(selectedChromeCast.Id);
+                    this.ChromeCastWrapper.Connect(selectedChromeCast.Id).GetAwaiter().GetResult();
                     this.CommandImageChanged(commandParameter);
                 }
 
@@ -160,7 +161,7 @@
 
         private void ChromeCastWrapper_ChromeCastsUpdated(Object sender, ChromeCastsUpdatedEventArgs e) => this.ButtonActionNamesChanged();
 
-        private async void LoadChromeCastRecievers()
+        private async Task LoadChromeCastRecieversAsync()
         {
             try
             {

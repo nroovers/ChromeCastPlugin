@@ -27,7 +27,7 @@
 
             try
             {
-                this.ChromeCastWrapper.StopCast();
+                this.ChromeCastWrapper.StopCast().GetAwaiter().GetResult();
             }
             catch (Exception e)
             {

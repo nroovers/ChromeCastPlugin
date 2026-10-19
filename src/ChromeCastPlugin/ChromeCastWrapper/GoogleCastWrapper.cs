@@ -38,7 +38,21 @@
             set
             {
                 this._isMuted = value;
-                this._sender.GetChannel<IReceiverChannel>()?.SetIsMutedAsync(this._isMuted);
+
+                var receiverChannel = this._sender.GetChannel<IReceiverChannel>();
+                if (receiverChannel == null)
+                {
+                    return;
+                }
+
+                try
+                {
+                    receiverChannel.SetIsMutedAsync(this._isMuted).GetAwaiter().GetResult();
+                }
+                catch (Exception e)
+                {
+                    Loupedeck.ChromeCastPlugin.PluginLog.Warning(e, "Failed to set Chromecast mute state");
+                }
             }
         }
 
@@ -62,7 +76,20 @@
                     this._volume = value;
                 }
 
-                this._sender.GetChannel<IReceiverChannel>()?.SetVolumeAsync(this._volume == 0 ? 0 : this._volume / (Single)100);
+                var receiverChannel = this._sender.GetChannel<IReceiverChannel>();
+                if (receiverChannel == null)
+                {
+                    return;
+                }
+
+                try
+                {
+                    receiverChannel.SetVolumeAsync(this._volume == 0 ? 0 : this._volume / (Single)100).GetAwaiter().GetResult();
+                }
+                catch (Exception e)
+                {
+                    Loupedeck.ChromeCastPlugin.PluginLog.Warning(e, "Failed to set Chromecast volume");
+                }
             }
         }
 
@@ -92,6 +119,7 @@
         public Boolean DeactivateContinuousSearch()
         {
             this._unsubscribeFindReceiversContinuous?.Dispose();
+            this._unsubscribeFindReceiversContinuous = null;
             this.IsContinuousSearchActive = false;
             return true;
         }
@@ -116,9 +144,9 @@
                         receivers.AddRange(foundReceivers);
                     }
                 }
-                catch
+                catch (Exception e)
                 {
-                    // Ignore adapter specific discovery failures and continue with other adapters.
+                    Loupedeck.ChromeCastPlugin.PluginLog.Warning(e, $"Receiver discovery failed on adapter '{networkInterface.Name}'");
                 }
             }
 
@@ -354,22 +382,33 @@
 
         private void ConnectEventHandlers()
         {
-            if (this._sender.GetChannel<IReceiverChannel>() != null && !this._areEventhandlersConnected)
+            var receiverChannel = this._sender.GetChannel<IReceiverChannel>();
+            var mediaChannel = this._sender.GetChannel<IMediaChannel>();
+
+            if (receiverChannel != null && mediaChannel != null && !this._areEventhandlersConnected)
             {
-                this._sender.GetChannel<IReceiverChannel>().StatusChanged += this.GoogleCastWrapper_ReceiverStatusChanged;
-                this._sender.GetChannel<IMediaChannel>().StatusChanged += this.GoogleCastWrapper_MediaStatusChanged;
+                receiverChannel.StatusChanged += this.GoogleCastWrapper_ReceiverStatusChanged;
+                mediaChannel.StatusChanged += this.GoogleCastWrapper_MediaStatusChanged;
                 this._areEventhandlersConnected = true;
             }
         }
 
         private void DisconnectEventHandlers()
         {
-            if (this._sender.GetChannel<IReceiverChannel>() != null)
+            var receiverChannel = this._sender.GetChannel<IReceiverChannel>();
+            var mediaChannel = this._sender.GetChannel<IMediaChannel>();
+
+            if (receiverChannel != null)
             {
-                this._sender.GetChannel<IReceiverChannel>().StatusChanged -= this.GoogleCastWrapper_ReceiverStatusChanged;
-                this._sender.GetChannel<IMediaChannel>().StatusChanged -= this.GoogleCastWrapper_MediaStatusChanged;
-                this._areEventhandlersConnected = false;
+                receiverChannel.StatusChanged -= this.GoogleCastWrapper_ReceiverStatusChanged;
             }
+
+            if (mediaChannel != null)
+            {
+                mediaChannel.StatusChanged -= this.GoogleCastWrapper_MediaStatusChanged;
+            }
+
+            this._areEventhandlersConnected = false;
         }
 
         private void OnNext(IReceiver receiver)
