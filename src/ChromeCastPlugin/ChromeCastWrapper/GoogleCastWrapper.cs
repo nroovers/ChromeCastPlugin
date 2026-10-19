@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net.NetworkInformation;
     using System.Threading.Tasks;
 
     using GoogleCast;
@@ -97,7 +98,35 @@
 
         public async Task<Boolean> SearchChromeCasts()
         {
-            this._receivers = await new DeviceLocator().FindReceiversAsync();
+            var deviceLocator = new DeviceLocator();
+            var receivers = new List<IReceiver>();
+
+            var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces()
+                .Where(networkInterface => networkInterface.OperationalStatus == OperationalStatus.Up)
+                .Where(networkInterface => networkInterface.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                .Where(networkInterface => networkInterface.SupportsMulticast);
+
+            foreach (var networkInterface in networkInterfaces)
+            {
+                try
+                {
+                    var foundReceivers = await deviceLocator.FindReceiversAsync(networkInterface);
+                    if (foundReceivers != null)
+                    {
+                        receivers.AddRange(foundReceivers);
+                    }
+                }
+                catch
+                {
+                    // Ignore adapter specific discovery failures and continue with other adapters.
+                }
+            }
+
+            this._receivers = receivers
+                .GroupBy(receiver => receiver.Id)
+                .Select(group => group.First())
+                .ToList();
+
             this.ChromeCastsUpdated?.Invoke(this, new ChromeCastsUpdatedEventArgs());
             return true;
         }
