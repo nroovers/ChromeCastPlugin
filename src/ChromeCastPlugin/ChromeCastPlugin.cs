@@ -37,7 +37,7 @@ namespace Loupedeck.ChromeCastPlugin
 
             if (!this.ChromeCastApi.IsContinuousSearchActive)
             {
-                this.ChromeCastApi.ActivateContinuousSearch();
+                this.ChromeCastApi.ActivateContinuousSearch().GetAwaiter().GetResult();
             }
         }
 
@@ -48,12 +48,12 @@ namespace Loupedeck.ChromeCastPlugin
             {
                 if (this.ChromeCastApi.IsContinuousSearchActive)
                 {
-                    this.ChromeCastApi.DeactivateContinuousSearch();
+                    this.ChromeCastApi.DeactivateContinuousSearch().GetAwaiter().GetResult();
                 }
 
                 if (this.ChromeCastApi.IsConnected)
                 {
-                    this.ChromeCastApi.Disconnect();
+                    this.ChromeCastApi.Disconnect().GetAwaiter().GetResult();
                 }
             }
             catch (Exception e)

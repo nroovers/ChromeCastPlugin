@@ -32,66 +32,9 @@
 
         public event EventHandler<ChromeCastsUpdatedEventArgs> ChromeCastsUpdated;
 
-        public Boolean IsMuted
-        {
-            get => this._isMuted;
-            set
-            {
-                this._isMuted = value;
+        public Boolean IsMuted => this._isMuted;
 
-                var receiverChannel = this._sender.GetChannel<IReceiverChannel>();
-                if (receiverChannel == null)
-                {
-                    return;
-                }
-
-                try
-                {
-                    receiverChannel.SetIsMutedAsync(this._isMuted).GetAwaiter().GetResult();
-                }
-                catch (Exception e)
-                {
-                    Loupedeck.ChromeCastPlugin.PluginLog.Warning(e, "Failed to set Chromecast mute state");
-                }
-            }
-        }
-
-        public Int32 Volume
-        {
-            get => this._volume;
-            set
-            {
-                this._isMuted = false;
-
-                if (value > 100)
-                {
-                    this._volume = 100;
-                }
-                else if (value < 0)
-                {
-                    this._volume = 0;
-                }
-                else
-                {
-                    this._volume = value;
-                }
-
-                var receiverChannel = this._sender.GetChannel<IReceiverChannel>();
-                if (receiverChannel == null)
-                {
-                    return;
-                }
-
-                try
-                {
-                    receiverChannel.SetVolumeAsync(this._volume == 0 ? 0 : this._volume / (Single)100).GetAwaiter().GetResult();
-                }
-                catch (Exception e)
-                {
-                    Loupedeck.ChromeCastPlugin.PluginLog.Warning(e, "Failed to set Chromecast volume");
-                }
-            }
-        }
+        public Int32 Volume => this._volume;
 
         public IEnumerable<ChromeCast> ChromeCasts =>
             this._receivers != null && this._receivers.Any()
@@ -108,20 +51,20 @@
 
         public Boolean IsContinuousSearchActive { get; private set; } = false;
 
-        public Boolean ActivateContinuousSearch()
+        public Task<Boolean> ActivateContinuousSearch()
         {
             this._unsubscribeFindReceiversContinuous?.Dispose();
             this._unsubscribeFindReceiversContinuous = new DeviceLocator().FindReceiversContinuous().Subscribe(this.OnNext);
             this.IsContinuousSearchActive = true;
-            return true;
+            return Task.FromResult(true);
         }
 
-        public Boolean DeactivateContinuousSearch()
+        public Task<Boolean> DeactivateContinuousSearch()
         {
             this._unsubscribeFindReceiversContinuous?.Dispose();
             this._unsubscribeFindReceiversContinuous = null;
             this.IsContinuousSearchActive = false;
-            return true;
+            return Task.FromResult(true);
         }
 
         public async Task<Boolean> SearchChromeCasts()
@@ -222,13 +165,54 @@
             return true;
         }
 
-        public Boolean Disconnect()
+        public Task<Boolean> Disconnect()
         {
             this._selectedReceiver = null;
             this.PlayBackUrl = String.Empty;
             this.PlayBackState = PlayBackState.Idle;
             this.DisconnectEventHandlers();
             this._sender.Disconnect();
+            return Task.FromResult(true);
+        }
+
+        public async Task<Boolean> SetMuted(Boolean isMuted)
+        {
+            this._isMuted = isMuted;
+
+            var receiverChannel = this._sender.GetChannel<IReceiverChannel>();
+            if (receiverChannel == null)
+            {
+                return false;
+            }
+
+            await receiverChannel.SetIsMutedAsync(this._isMuted);
+            return true;
+        }
+
+        public async Task<Boolean> SetVolume(Int32 volume)
+        {
+            this._isMuted = false;
+
+            if (volume > 100)
+            {
+                this._volume = 100;
+            }
+            else if (volume < 0)
+            {
+                this._volume = 0;
+            }
+            else
+            {
+                this._volume = volume;
+            }
+
+            var receiverChannel = this._sender.GetChannel<IReceiverChannel>();
+            if (receiverChannel == null)
+            {
+                return false;
+            }
+
+            await receiverChannel.SetVolumeAsync(this._volume == 0 ? 0 : this._volume / (Single)100);
             return true;
         }
 

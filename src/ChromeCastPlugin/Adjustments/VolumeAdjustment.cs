@@ -50,7 +50,7 @@
 
             try
             {
-                this.ChromeCastWrapper.Volume += ticks;
+                this.ChromeCastWrapper.SetVolume(this.ChromeCastWrapper.Volume + ticks).GetAwaiter().GetResult();
                 this.ActionImageChanged(actionParameter);
             }
             catch (Exception e)
@@ -68,7 +68,7 @@
 
             try
             {
-                this.ChromeCastWrapper.IsMuted = !this.ChromeCastWrapper.IsMuted;
+                this.ChromeCastWrapper.SetMuted(!this.ChromeCastWrapper.IsMuted).GetAwaiter().GetResult();
                 this.ActionImageChanged(actionParameter);
             }
             catch (Exception e)

@@ -21,9 +21,9 @@
 
         Boolean IsContinuousSearchActive { get; }
 
-        Boolean IsMuted { get; set; }
+        Boolean IsMuted { get; }
 
-        Int32 Volume { get; set; }
+        Int32 Volume { get; }
 
         PlayBackState PlayBackState { get; }
 
@@ -35,9 +35,9 @@
 
         Boolean IsConnected { get; }
 
-        Boolean ActivateContinuousSearch();
+        Task<Boolean> ActivateContinuousSearch();
 
-        Boolean DeactivateContinuousSearch();
+        Task<Boolean> DeactivateContinuousSearch();
 
         Task<Boolean> SearchChromeCasts();
 
@@ -45,7 +45,11 @@
 
         Task<Boolean> Reconnect();
 
-        Boolean Disconnect();
+        Task<Boolean> Disconnect();
+
+        Task<Boolean> SetMuted(Boolean isMuted);
+
+        Task<Boolean> SetVolume(Int32 volume);
 
         Task<Boolean> PlayCast(String url);
 
