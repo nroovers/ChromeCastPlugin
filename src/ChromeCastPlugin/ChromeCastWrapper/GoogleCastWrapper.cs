@@ -5,10 +5,8 @@
     using System.Linq;
     using System.Net.NetworkInformation;
     using System.Threading.Tasks;
-
     using GoogleCast;
     using GoogleCast.Channels;
-    using GoogleCast.Messages;
     using GoogleCast.Models.Media;
     using GoogleCast.Models.Receiver;
 
@@ -17,8 +15,6 @@
         private readonly Sender _sender = new Sender();
         private IEnumerable<IReceiver> _receivers;
         private IReceiver _selectedReceiver;
-        private Boolean _isMuted = false;
-        private Int32 _volume = 50;
         private IDisposable _unsubscribeFindReceiversContinuous;
         private Boolean _areEventhandlersConnected = false;
 
@@ -32,9 +28,9 @@
 
         public event EventHandler<ChromeCastsUpdatedEventArgs> ChromeCastsUpdated;
 
-        public Boolean IsMuted => this._isMuted;
+        public Boolean IsMuted { get; private set; } = false;
 
-        public Int32 Volume => this._volume;
+        public Int32 Volume { get; private set; } = 50;
 
         public IEnumerable<ChromeCast> ChromeCasts =>
             this._receivers != null && this._receivers.Any()
@@ -93,10 +89,12 @@
                 }
             }
 
-            this._receivers = receivers
+            var discoveredReceivers = receivers
                 .GroupBy(receiver => receiver.Id)
                 .Select(group => group.First())
                 .ToList();
+
+            this._receivers = discoveredReceivers;
 
             this.ChromeCastsUpdated?.Invoke(this, new ChromeCastsUpdatedEventArgs());
             return true;
@@ -109,60 +107,44 @@
                 throw new ArgumentNullException("chromeCastId", "Parameter 'chromeCastId' cannot be null or empty");
             }
 
-            var receiver = this._receivers.FirstOrDefault(r => r.Id == chromeCastId);
+            var receiver = this._receivers?.FirstOrDefault(r => r.Id == chromeCastId);
 
             if (receiver == null)
             {
                 throw new ArgumentException($"Chromecast with id {chromeCastId} not found", "chromeCastId");
             }
 
-            if (this._selectedReceiver?.Id == receiver.Id)
+            var selectedReceiver = this._selectedReceiver;
+            if (selectedReceiver?.Id == receiver.Id)
             {
                 return true;
             }
 
-            this._selectedReceiver = receiver;
-            await this._sender.ConnectAsync(receiver);
-
-            var status = await this._sender.GetChannel<IReceiverChannel>().GetStatusAsync();
-            this.SetReceiverStatus(status);
-
-            this.ConnectEventHandlers();
-
-            this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCastId = chromeCastId });
-
-            return true;
+            return await this.ConnectAndPublishAsync(receiver, chromeCastId);
         }
 
         public async Task<Boolean> Reconnect()
         {
-            if (this._selectedReceiver == null)
+            var selectedReceiver = this._selectedReceiver;
+            if (selectedReceiver == null)
             {
                 return true;
             }
 
-            if (this._receivers == null || this._receivers.Count() == 0)
+            if (this._receivers == null || !this._receivers.Any())
             {
                 await this.SearchChromeCasts();
             }
 
-            if (this._receivers.FirstOrDefault(r => r.Id == this._selectedReceiver.Id) == null)
+            if (this._receivers?.FirstOrDefault(r => r.Id == selectedReceiver.Id) == null)
             {
                 this._selectedReceiver = null;
+
                 this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs());
                 return true;
             }
 
-            await this._sender.ConnectAsync(this._selectedReceiver);
-
-            var status = await this._sender.GetChannel<IReceiverChannel>().GetStatusAsync();
-            this.SetReceiverStatus(status);
-
-            this.ConnectEventHandlers();
-
-            this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCastId = this._selectedReceiver.Id });
-
-            return true;
+            return await this.ConnectAndPublishAsync(selectedReceiver, selectedReceiver.Id);
         }
 
         public Task<Boolean> Disconnect()
@@ -177,7 +159,7 @@
 
         public async Task<Boolean> SetMuted(Boolean isMuted)
         {
-            this._isMuted = isMuted;
+            this.IsMuted = isMuted;
 
             var receiverChannel = this._sender.GetChannel<IReceiverChannel>();
             if (receiverChannel == null)
@@ -185,25 +167,25 @@
                 return false;
             }
 
-            await receiverChannel.SetIsMutedAsync(this._isMuted);
+            await receiverChannel.SetIsMutedAsync(this.IsMuted);
             return true;
         }
 
         public async Task<Boolean> SetVolume(Int32 volume)
         {
-            this._isMuted = false;
+            this.IsMuted = false;
 
             if (volume > 100)
             {
-                this._volume = 100;
+                this.Volume = 100;
             }
             else if (volume < 0)
             {
-                this._volume = 0;
+                this.Volume = 0;
             }
             else
             {
-                this._volume = volume;
+                this.Volume = volume;
             }
 
             var receiverChannel = this._sender.GetChannel<IReceiverChannel>();
@@ -212,7 +194,7 @@
                 return false;
             }
 
-            await receiverChannel.SetVolumeAsync(this._volume == 0 ? 0 : this._volume / (Single)100);
+            await receiverChannel.SetVolumeAsync(this.Volume == 0 ? 0 : this.Volume / (Single)100);
             return true;
         }
 
@@ -313,8 +295,8 @@
                 return;
             }
 
-            this._isMuted = status.Volume.IsMuted ?? false;
-            this._volume = (Int32)(status.Volume.Level * 100);
+            this.IsMuted = status.Volume.IsMuted ?? false;
+            this.Volume = (Int32)(status.Volume.Level * 100);
 
             this.StatusChanged?.Invoke(this, new ChromeCastStatusUpdatedEventArgs()
             {
@@ -395,14 +377,47 @@
             this._areEventhandlersConnected = false;
         }
 
+        private async Task<Boolean> ConnectAndPublishAsync(IReceiver receiver, String chromeCastId)
+        {
+            this._selectedReceiver = receiver;
+
+            await this._sender.ConnectAsync(receiver);
+            await this.RefreshReceiverStatusAsync();
+            this.ConnectEventHandlers();
+
+            this.ChromeCastConnected?.Invoke(this, new ChromeCastConnectedEventArgs() { ChromeCastId = chromeCastId });
+            return true;
+        }
+
+        private async Task RefreshReceiverStatusAsync()
+        {
+            var receiverChannel = this._sender.GetChannel<IReceiverChannel>();
+            if (receiverChannel == null)
+            {
+                return;
+            }
+
+            var status = await receiverChannel.GetStatusAsync();
+            this.SetReceiverStatus(status);
+        }
+
         private void OnNext(IReceiver receiver)
         {
+            if (receiver == null)
+            {
+                return;
+            }
+
             if (this._receivers == null)
             {
                 this._receivers = new List<IReceiver>();
             }
 
-            this._receivers = this._receivers.Append(receiver);
+            this._receivers = this._receivers
+                .Where(existing => existing.Id != receiver.Id)
+                .Append(receiver)
+                .ToList();
+
             this.ChromeCastsUpdated?.Invoke(this, new ChromeCastsUpdatedEventArgs());
         }
     }
