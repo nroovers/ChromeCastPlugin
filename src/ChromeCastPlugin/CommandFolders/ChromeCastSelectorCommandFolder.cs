@@ -88,27 +88,35 @@
         {
             using (var bitmapBuilder = new BitmapBuilder(imageSize))
             {
-                bitmapBuilder.FillRectangle(0, 0, 90, 90, BitmapColor.Black);
-                if (this.ChromeCastWrapper.ConnectedChromeCast?.Id == actionParameter)
-                {
-                    bitmapBuilder.DrawText(this.GetCommandDisplayName(actionParameter), BitmapColor.White);
-                    bitmapBuilder.DrawLine(0, 5, 90, 5, Theme.PrimaryColor, 5);
-                    bitmapBuilder.DrawLine(0, 75, 90, 75, Theme.PrimaryColor, 5);
-                }
-                else if (actionParameter == this._notFoundCommand ||
+                var width = bitmapBuilder.Width;
+                var height = bitmapBuilder.Height;
+                var isSelectedChromeCast = this.ChromeCastWrapper.ConnectedChromeCast?.Id == actionParameter;
+                var isSystemCommand =
+                    actionParameter == this._notFoundCommand ||
                     actionParameter == this._loadingCommand ||
-                    actionParameter == this._refreshCommand)
+                    actionParameter == this._refreshCommand;
+
+                var displayText = isSystemCommand
+                    ? actionParameter
+                    : this.GetCommandDisplayName(actionParameter);
+
+                bitmapBuilder.FillRectangle(0, 0, width, height, BitmapColor.Black);
+
+                bitmapBuilder.DrawText(displayText, BitmapColor.White);
+
+                if (isSelectedChromeCast)
                 {
-                    bitmapBuilder.DrawText(actionParameter, BitmapColor.White);
-                }
-                else
-                {
-                    bitmapBuilder.DrawText(this.GetCommandDisplayName(actionParameter), BitmapColor.White);
+                    var markerTopY = 5;
+                    var markerBottomY = Math.Max(0, height - 15);
+                    bitmapBuilder.DrawLine(0, markerTopY, width, markerTopY, Theme.PrimaryColor, 5);
+                    bitmapBuilder.DrawLine(0, markerBottomY, width, markerBottomY, Theme.PrimaryColor, 5);
                 }
 
                 return bitmapBuilder.ToImage();
             }
         }
+
+        public override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize) => String.Empty;
 
         public override void RunCommand(String commandParameter)
         {
